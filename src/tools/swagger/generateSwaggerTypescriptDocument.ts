@@ -3,7 +3,6 @@ import * as fs from 'fs'
 import * as process from 'process';
 import * as dotenv from 'dotenv';
 import {AppDataSource} from "../../data-source.config";
-import {searchDto} from "../dtos/searchDto";
 import {searchEntityDto} from "../dtos/searchEntityDto";
 import {dtosArray} from "../../array/dtos.array";
 import {getFunctionParams} from "../functions/getFunctionParams";
@@ -117,7 +116,6 @@ const doc: object = {
                                                 }
                                                 
                                             }).join(``)}
-                                    })}
                                     },
                                     `;
                                 
@@ -220,7 +218,6 @@ const doc: object = {
                                                 }
 
                                             }).join(``)}
-                                            })}
                                             },
                                             `;
 

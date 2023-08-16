@@ -21,14 +21,7 @@ export function FindByEmail(email: string){
         }
     })
 }
-export function FindUserAndRelations(): Promise<User[]>{
 
-    const entityRepository = AppDataSource.getRepository(User);
-
-    return entityRepository.find({
-        relations : ['users_adresses_mm','users_conversations_mm','sexe','societe']
-    })
-}
 
 ` : ``}
     `;

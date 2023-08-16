@@ -1,5 +1,7 @@
-import {Entity, Column} from "typeorm"
+import {Entity, Column, OneToOne, JoinColumn, OneToMany} from "typeorm"
 import {UserHiddenEntityColumns} from "./hiddenEntityColumns/user.hiddenEntityColumns";
+import {Profile} from "./profile.entity";
+import {Photo} from "./photo.entity";
 @Entity()
 export class User extends UserHiddenEntityColumns{
 
@@ -14,5 +16,12 @@ export class User extends UserHiddenEntityColumns{
 
     @Column({nullable: false, type: "varchar"})
     prenom: string;
+
+    @OneToOne(() => Profile, (profile) => profile.user) // specify inverse side as a second parameter
+    @JoinColumn()
+    profile: Profile
+
+    @OneToMany(() => Photo, (photo) => photo.user)
+    photos: Photo[]
 
 }
