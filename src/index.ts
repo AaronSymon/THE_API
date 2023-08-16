@@ -84,14 +84,14 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Hello World!')
 })
 
-//Utilisation des routers
+//Use Routers
 app.use('/api_access', api_accessRouter)
 const routers = mountRouter()
 routers.forEach((router) => {
     app.use(router.pathName, router.router)
 });
 
-//Message dans la console pour vérifier que le serveur est bien lancé
+//Print message on console when server is running
 app.listen(process.env.SV_PORT, () => {
     console.log(`${process.env.APP_NAME}, using express is listening on port http://${process.env.SV_HOSTNAME}:${process.env.SV_PORT}/`)
     console.log(`Swagger documentation is available on http://${process.env.SV_HOSTNAME}:${process.env.SV_PORT}/api`)

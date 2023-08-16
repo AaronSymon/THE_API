@@ -302,8 +302,6 @@ swaggerAutogen(outputFile, endpointsFiles, doc).then(async() => {
     `;
 
     fs.writeFileSync(directoryPath, fileContent)
-    console.log("swagger document created")
-
 
 }
 

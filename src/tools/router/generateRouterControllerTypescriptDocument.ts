@@ -355,7 +355,7 @@ ${entity.name.toLowerCase()}Router.delete('/:id(\\\\d+)', verifyToken, verifyUse
     } catch (e) {
     
         //console.log(e);
-        res.status(500).json({message: \`Une erreur est survenue, imposible de supprimer une instance de ${entity.name} avec id \${req.params.id}\`});
+        return res.status(500).json({message: \`Une erreur est survenue, imposible de supprimer une instance de ${entity.name} avec id \${req.params.id}\`});
     
     }
 
