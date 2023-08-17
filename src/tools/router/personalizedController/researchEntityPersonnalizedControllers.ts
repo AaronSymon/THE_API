@@ -4,77 +4,134 @@ import {searchEntityDto} from "../../dtos/searchEntityDto";
 import {dtosArray} from "../../../array/dtos.array";
 import {getFunctionParams} from "../../functions/getFunctionParams";
 import {AppDataSource} from "../../../data-source.config";
+
+//Fonction researchEntityPersonnalizedControllers qui permet de rechercher les controllers personnalisés d'une entité
+//Function researchEntityPersonnalizedControllers that allows to search the personalized controllers of an entity
 export default async function researchEntityPersonnalizedControllers(entity: Function): Promise<personalizedController[]> {
 
+    //Définir dataSource qui contient les informations de la base de données
+    //Define dataSource which contains the information of the database
+    const dataSource = await AppDataSource.initialize()
 
-        const dataSource = await AppDataSource.initialize()
+    //Définir entityMetadata qui contient les informations de la table entity
+    //Define entityMetadata which contains the information of the table entity
+    const entityMetadata = dataSource.manager.getRepository(entity).metadata
 
-        //Définir entityMetadata qui contient les informations de la table entity
-        const entityMetadata = dataSource.manager.getRepository(entity).metadata
+    //Définir entityColumns qui contient les informations des colonnes de la table entity
+    //Define entityColumns which contains the information of the columns of the table entity
+    const entityColumns = entityMetadata.columns
 
-        //Définir entityColumns qui contient les informations des colonnes de la table entity
-        const entityColumns = entityMetadata.columns
+    //const entityRelations = entityMetadata.relations
 
-        const entityRelations = entityMetadata.relations
+    //Définir entityDto qui contient les informations du dto de l'entité
+    //Define entityDto which contains the information of the dto of the entity
+    const entityDto = searchEntityDto(dtosArray, entity.name)
 
+    //Définir entityDtoParams qui contient les paramètres du dto de l'entité
+    //Define entityDtoParams which contains the parameters of the dto of the entity
+    const entityDtoParams = getFunctionParams(entityDto)
 
-        const entityDto = searchEntityDto(dtosArray, entity.name)
-        const entityDtoParams = getFunctionParams(entityDto)
+    //Définir directoryPath qui contient le chemin du dossier des controllers personnalisés
+    //Define directoryPath which contains the path of the personalized controllers folder
+    const directoryPath: string = path.join(__dirname, `../../../router/personalizedController`);
 
-        const directoryPath: string = path.join(__dirname, `../../../router/personalizedController`);
-        const personalizedControllersFiles: string[] = glob.sync(`${directoryPath}/${entity.name.toLowerCase()}.personalizedController.js`)
+    //Définir personalizedControllersFiles qui contient les fichiers des controllers personnalisés
+    //Define personalizedControllersFiles which contains the files of the personalized controllers
+    const personalizedControllersFiles: string[] = glob.sync(`${directoryPath}/${entity.name.toLowerCase()}.personalizedController.js`)
 
-        const personalizedControllers: personalizedController[] = []
+    //Définir personalizedControllers qui contient les controllers personnalisés
+    //Define personalizedControllers which contains the personalized controllers
+    const personalizedControllers: personalizedController[] = []
 
+    //Parcourir personalizedControllersFiles
+    //Browse personalizedControllersFiles
+    personalizedControllersFiles.forEach((personalizedControllerFile) => {
 
-        personalizedControllersFiles.forEach((personalizedControllerFile) => {
+        //Définir module qui contient les controllers personnalisés
+        //Define module which contains the personalized controllers
+        const module = require(personalizedControllerFile);
 
-            const module = require(personalizedControllerFile);
+        //Parcourir module
+        //Browse module
+        Object.keys(module).forEach((key) => {
 
-            Object.keys(module).forEach((key) => {
+            //Définir isPersonalizedController qui contient le controller personnalisé
+            //Define isPersonalizedController which contains the personalized controller
+            const isPersonalizedController = module[key]
 
-                const isPersonalizedController = module[key]
-                if (typeof isPersonalizedController === 'function') {
+            //Vérifier si isPersonalizedController est une fonction
+            //Check if isPersonalizedController is a function
+            if (typeof isPersonalizedController === 'function') {
 
-                    const controllerParams: {paramName: string, paramType: string, paramRegex: string}[] = []
-                    const isPersonalizedControllerParams = getFunctionParams(isPersonalizedController)
+                //Définir controllerParams qui contient les paramètres du controller personnalisé
+                //Define controllerParams which contains the parameters of the personalized controller
+                const controllerParams: {paramName: string, paramType: string, paramRegex: string}[] = []
+                const isPersonalizedControllerParams = getFunctionParams(isPersonalizedController)
 
-                    isPersonalizedControllerParams.forEach((isPersonalizedControllerParam) => {
+                //Parcourir isPersonalizedControllerParams
+                //Browse isPersonalizedControllerParams
+                isPersonalizedControllerParams.forEach((isPersonalizedControllerParam) => {
 
-                        if (entityDtoParams.includes(isPersonalizedControllerParam)) {
+                    //Vérifier si entityDtoParams contient isPersonalizedControllerParam
+                    //Check if entityDtoParams contains isPersonalizedControllerParam
+                    if (entityDtoParams.includes(isPersonalizedControllerParam)) {
 
-                            const entityColumn = entityColumns.find((entityColumn) => {
-                                return entityColumn.propertyName === isPersonalizedControllerParam
-                            })
+                        //Définir entityColumn qui contient la colonne de la table entity
+                        //Define entityColumn which contains the column of the table entity
+                        const entityColumn = entityColumns.find((entityColumn) => {
+                            return entityColumn.propertyName === isPersonalizedControllerParam
+                        })
 
-                            const entityColumnName = entityColumn.propertyName
-                            let entityColumnType: string = entityColumn.type.toString()
-                            let paramRegex: string = ''
+                        //Définir entityColumnName qui contient le nom de la colonne de la table entity
+                        //Define entityColumnName which contains the name of the column of the table entity
+                        const entityColumnName = entityColumn.propertyName
 
-                            if (number.has(entityColumnType)) {
-                                paramRegex = '(\\\\d+)'
-                            }
-                            if (string.has(entityColumnType)) {
-                                paramRegex = '([a-zA-Z0-9@#?!%20%3F.]+)'
-                            }
+                        //Définir entityColumnType qui contient le type de la colonne de la table entity
+                        //Define entityColumnType which contains the type of the column of the table entity
+                        let entityColumnType: string = entityColumn.type.toString()
 
-                            controllerParams.push({paramName: entityColumnName, paramType: entityColumnType, paramRegex: paramRegex})
+                        //Définir paramRegex qui contient le regex du paramètre
+                        //Define paramRegex which contains the regex of the parameter
+                        let paramRegex: string = ''
 
+                        //Vérifier si entityColumnType est un nombre
+                        //Check if entityColumnType is a number
+                        if (number.has(entityColumnType)) {
+                            //Définir paramRegex qui contient le regex du paramètre
+                            //Define paramRegex which contains the regex of the parameter
+                            paramRegex = '(\\\\d+)'
                         }
-                    })
+                        //Vérifier si entityColumnType est une chaines de caractères
+                        //Check if entityColumnType is a string
+                        if (string.has(entityColumnType)) {
+                            paramRegex = '([a-zA-Z0-9@#?!%20%3F.]+)'
+                        }
 
-                    const personalizedController: personalizedController = {
-                        controllerName: isPersonalizedController.name,
-                        controllerParams: controllerParams,
-                        controller: isPersonalizedController
+                        //Insérer dans controllerParams le nom, le type et le regex du paramètre
+                        //Insert in controllerParams the name, the type and the regex of the parameter
+                        controllerParams.push({paramName: entityColumnName, paramType: entityColumnType, paramRegex: paramRegex})
+
                     }
+                })
 
-                    personalizedControllers.push(personalizedController)
+                //Définir personalizedController qui contient le controller personnalisé
+                //Define personalizedController which contains the personalized controller
+                const personalizedController: personalizedController = {
+                    controllerName: isPersonalizedController.name,
+                    controllerParams: controllerParams,
+                    controller: isPersonalizedController
                 }
-            })
-        })
 
-        return personalizedControllers;
+                //Insérer dans personalizedControllers le controller personnalisé
+                //Insert in personalizedControllers the personalized controller
+                personalizedControllers.push(personalizedController)
+            }
+        })
+    })
+
+    //Retourner personalizedControllers
+    //Return personalizedControllers
+    return personalizedControllers;
 
 };
 

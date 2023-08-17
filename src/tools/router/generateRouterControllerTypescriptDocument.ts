@@ -3,18 +3,24 @@ import * as fs from 'fs';
 import {getEntityPropertiesName} from "../entities/getEntityPropertyNames";
 import researchEntityPersonnalizedControllers from "./personalizedController/researchEntityPersonnalizedControllers";
 
+//Fonction generateRouterControllerTypescriptDocument, permettant de générer le document typescript du router d'une entité
+//Function generateRouterControllerTypescriptDocument, used to generate the typescript document of an entity router
 export default async function generateRouterControllerTypescriptDocument(entity: Function) {
 
     //Déclaration du chemin du fichier
+    //Declaration of the file path
     const filePath = path.join(__dirname, `../../../../src/router/${entity.name.toLowerCase()}.router.ts`);
 
     //Déclaration du nom des propriétés de l'entité
+    //Declaration of the entity properties names
     const entityPropertiesNames: String[] = getEntityPropertiesName(entity);
 
     //Déclaration des controllers personnalisés
+    //Declaration of the personalized controllers
     const personalizedControllers : personalizedController[] = await researchEntityPersonnalizedControllers(entity);
 
     //Déclaration du contenu du fichier
+    //Declaration of the file content
     let fileContent = `//Import Express
 const express = require('express');
 import { Request, Response } from 'express';
@@ -362,6 +368,8 @@ ${entity.name.toLowerCase()}Router.delete('/:id(\\\\d+)', verifyToken, verifyUse
 });
 `
 
+    //Générer le fichier ${entity.name.toLowerCase()}.router.ts
+    //Generates ${entity.name.toLowerCase()}.router.ts file
     fs.writeFileSync(filePath, fileContent);
 
     console.log(`${entity.name.toLowerCase()}.router.ts generated successfully`);

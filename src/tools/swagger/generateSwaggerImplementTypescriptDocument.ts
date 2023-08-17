@@ -2,16 +2,25 @@ import * as path from 'path';
 import * as fs from 'fs'
 import {getEntityPropertiesName} from "../entities/getEntityPropertyNames";
 import researchEntityPersonnalizedControllers from "../router/personalizedController/researchEntityPersonnalizedControllers";
+
+//Fonction generateSwaggerImplementTypescriptDocument, permet de générer le document swagger pour une entité donnée
+//Fucntion generateSwaggerImplementTypescriptDocument, used to generate swagger document for a given entity
 export default async function generateSwaggerImplementTypescriptDocument(entity: Function) {
 
+    //Déclaration du chemin du fichier à générer
+    //Declaration of the file path to generate
     const directoryPath = path.join(__dirname, `../../../../src/tools/swagger/swaggerImplement/${entity.name.toLowerCase()}.swaggerImplement.ts`);
 
     //Déclaration du nom des propriétés de l'entité
+    //Declaration of the entity properties names
     const entityPropertiesNames: String[] = getEntityPropertiesName(entity);
 
     //Déclaration des controllers personnalisés
+    //Declaration of personalized controllers
     const personalizedControllers: personalizedController[] = await researchEntityPersonnalizedControllers(entity);
 
+    //Déclaration du contenu du fichier à générer
+    //Declaration of the file content to generate
     let fileContent = `//Import express
 const express = require('express');
 import { Request, Response } from 'express';
@@ -469,6 +478,8 @@ app.delete('/${entity.name.toLowerCase()}/:id(\\\\d+)', verifyToken, verifyUserA
 
 `
 
+    //Ecrire le contenu du fichier dans le fichier ${entity.name.toLowerCase()}.swaggerImplement.ts
+    //Write the file content in the ${entity.name.toLowerCase()}.swaggerImplement.ts file
     fs.writeFileSync(directoryPath, fileContent)
 
     console.log(`${entity.name.toLowerCase()}.swaggerImplement.ts generated successfully`)
