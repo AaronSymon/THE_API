@@ -7,15 +7,6 @@ import { Request, Response } from 'express';
 //Import de l'entité User
 import {User} from "../../entity/user.entity";
 
-//Import des erreurs
-import {
-    emailAlreadyUsedError,
-    emailAndPasswordFormatError,
-    emailFormatError,
-    emailOrPasswordUndefinedError,
-    passwordFormatError, userNotFoundByEmail
-} from "../../requestResponse/errors";
-
 //Import Password
 import {validatePassword} from "../../tools/password/validatePassword";
 import {hashPassword} from "../../tools/password/hashPassword";
@@ -53,7 +44,7 @@ api_accessRouter.post('/signup', async (req: Request, res: Response) => {
         //If the email or password entered by the user are not valid
         if (!req.body.email || !req.body.password) {
 
-            return res.status(emailOrPasswordUndefinedError.status).json(emailOrPasswordUndefinedError.message);
+            return res.status(400).json({message: 'Email and password required !'});
 
         }
         //Sinon si l'email et le mot de passe ne sont pas valides
@@ -62,7 +53,7 @@ api_accessRouter.post('/signup', async (req: Request, res: Response) => {
 
             //Retourner une erreur
             //Return an error
-            return res.status(emailAndPasswordFormatError.status).json(emailAndPasswordFormatError.message);
+            return res.status(400).json({message: 'Email and password format must be valid'});
 
         }
         //Sinon si le mot de passe n'est pas valide
@@ -71,7 +62,7 @@ api_accessRouter.post('/signup', async (req: Request, res: Response) => {
 
             //Retourner une erreur
             //Return an error
-            return res.status(passwordFormatError.status).json(passwordFormatError.message);
+            return res.status(400).json({message: 'Password format must be valid'});
 
         }
         //Sinon si l'email n'est pas valide
@@ -80,7 +71,7 @@ api_accessRouter.post('/signup', async (req: Request, res: Response) => {
 
             //Retourner une erreur
             //Return an error
-            return res.status(emailFormatError.status).json(emailFormatError.message);
+            return res.status(400).json({message: 'Email format must be valid'});
 
         }
         //Sinon si l'email et le mot de passe sont valides
@@ -97,7 +88,7 @@ api_accessRouter.post('/signup', async (req: Request, res: Response) => {
 
                 //Retourner une erreur
                 //Return an error
-                return res.status(emailAlreadyUsedError.status).json(emailAlreadyUsedError.message);
+                return res.status(409).json({message: 'Email already used'});
 
             }
 
@@ -151,7 +142,7 @@ api_accessRouter.post('/login', async (req: Request, res: Response) => {
 
             //Retourner une erreur
             //Return an error
-            return res.status(userNotFoundByEmail.status).json(userNotFoundByEmail.message);
+            return res.status(404).json({message: 'Invalid email or password'});
         }
 
         //Sinon si l'email existe en base de données, comparer le mot de passe saisi par l'utilisateur avec le mot de passe en base de données
@@ -178,7 +169,7 @@ api_accessRouter.post('/login', async (req: Request, res: Response) => {
 
                 //Retourner un message de succès
                 //Return a success message
-                return res.json({message: 'Login successfully'});
+                return res.status(200).json({message: 'Login successfully'});
 
             //Si le mot de passe saisi par l'utilisateur ne correspond pas au mot de passe en base de données
             //If the password entered by the user does not match the password in the database
@@ -218,7 +209,7 @@ api_accessRouter.post('/logout',verifyToken, (req: Request, res: Response) => {
 
             //Si le token de l'utilisateur est dans la liste des tokens révoqués, retourner un message d'erreur
             //If the user's token is in the list of revoked tokens, return an error message
-            return res.status(403).json({ message: 'Token invalide ou expiré. Accès refusé.' });
+            return res.status(403).json({ message: 'Permission denied' });
 
         }
 

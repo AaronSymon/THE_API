@@ -28,7 +28,7 @@ export default async function insert(entity: Function, data: Partial<any>) {
 
         //Retourner un message d'erreur
         //Return an error message
-        return {message: `une erreur est survenue durant l'insertion de ${entity.name}`}
+        return {message: `an error occurred while inserting ${entity.name}`}
 
     }
 

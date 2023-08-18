@@ -9,7 +9,6 @@ import * as process from 'process';
 
 //Import Process
 import * as dotenv from 'dotenv';
-import {ipAdressOrUserAgentError} from "../../requestResponse/errors";
 
 dotenv.config();
 
@@ -27,7 +26,7 @@ export default function verifyToken(req: Request, res: Response, next: Function)
 
         // Si le token n'existe pas, renvoyez une réponse 401 (non autorisée)
         // If token doesn't exist, send a 401 response (unauthorized)
-        return res.status(401).json({ message: 'Token manquant. Accès refusé.' });
+        return res.status(401).json({ message: 'Token is required. Access denied.' });
     }
 
     // Vérifiez si le token est valide
@@ -37,8 +36,7 @@ export default function verifyToken(req: Request, res: Response, next: Function)
         // Si le token n'est pas valide, renvoyez une réponse 403 (interdite)
         // If token is not valid, send a 403 response (forbidden)
         if (err) {
-
-            return res.status(403).json({ message: 'Token invalide ou expiré. Accès refusé.' });
+            return res.status(403).json({ message: 'Invalid token. Access denied.' });
         }
 
         // Vérifiez si l'adresse IP et l'agent utilisateur ne correspondent pas à ceux qui ont été utilisés pour générer le token
@@ -47,7 +45,7 @@ export default function verifyToken(req: Request, res: Response, next: Function)
 
             // Si l'adresse IP et l'agent utilisateur ne correspondent pas à ceux qui ont été utilisés pour générer le token, renvoyez une réponse 403 (interdite)
             // If ip adress and user agent don't match with the ones used to generate the token, send a 403 response (forbidden)
-            return res.status(ipAdressOrUserAgentError.status).json(ipAdressOrUserAgentError.message);
+            return res.status(403).json({message: 'Invalid token. Access denied.'});
 
         }
 

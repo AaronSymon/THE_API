@@ -6,12 +6,7 @@ import { Request, Response } from 'express';
 
 //Import de l'entité User
 import {User} from "../../../../entity/user.entity";
-import {
-    emailAlreadyUsedError,
-    emailAndPasswordFormatError, emailFormatError,
-    emailOrPasswordUndefinedError,
-    passwordFormatError, userNotFoundByEmail
-} from "../../../../requestResponse/errors";
+
 import {validatePassword} from "../../../password/validatePassword";
 import {emailRegex} from "../../../regex/regex";
 import findUserByEmail from "../../../httpMethodToDataBase/apiAccess/findUserByEmail";
@@ -39,25 +34,25 @@ app.post('/api_access/signup', async (req: Request, res: Response) => {
         //Vérifier si l'email et le mot de passe saisis par l'utilisateur sont valides
         if (!req.body.email || !req.body.password) {
 
-            return res.status(emailOrPasswordUndefinedError.status).json(emailOrPasswordUndefinedError.message);
+            return res.status(400).json({message: 'Email and password required !'});
 
         }
         //Sinon si l'email et le mot de passe ne sont pas valides
         else if (!await validatePassword(req.body.email) && !req.body.email.match(emailRegex)) {
 
-            return res.status(emailAndPasswordFormatError.status).json(emailAndPasswordFormatError.message);
+            return res.status(400).json({message: 'Email and password format must be valid'});
 
         }
         //Sinon si le mot de passe n'est pas valide
         else if (!await validatePassword(req.body.password)) {
 
-            return res.status(passwordFormatError.status).json(passwordFormatError.message);
+            return res.status(400).json({message: 'Password format must be valid'});
 
         }
         //Sinon si l'email n'est pas valide
         else if (!req.body.email.match(emailRegex)) {
 
-            return res.status(emailFormatError.status).json(emailFormatError.message);
+            return res.status(400).json({message: 'Email format must be valid'});
 
         }
         //Sinon si l'email et le mot de passe sont valides
@@ -69,7 +64,7 @@ app.post('/api_access/signup', async (req: Request, res: Response) => {
             //Si l'email est déjà utilisé
             if (isEmailExisting) {
 
-                return res.status(emailAlreadyUsedError.status).json(emailAlreadyUsedError.message);
+                return res.status(409).json({message: 'Email already used'});
 
             }
 
@@ -92,7 +87,7 @@ app.post('/api_access/signup', async (req: Request, res: Response) => {
     } catch (e) {
 
         //console.log(e);
-        res.status(500).json({message: 'Internal Server Error while creating account'});
+        return res.status(500).json({message: 'Internal Server Error while creating account'});
     }
 
 });
@@ -114,7 +109,7 @@ app.post('/api_access/login', async (req: Request, res: Response) => {
         //Si l'email n'existe pas en base de données
         if (!isUserExisting) {
 
-            return res.status(userNotFoundByEmail.status).json(userNotFoundByEmail.message);
+            return res.status(404).json({message: 'Invalid email or password'});
         }
 
         //Sinon si l'email existe en base de données, comparer le mot de passe saisi par l'utilisateur avec le mot de passe en base de données
@@ -135,7 +130,7 @@ app.post('/api_access/login', async (req: Request, res: Response) => {
 
                 //return res.status(200).json({token : accessToken})
 
-                return res.json({message: 'Login successfully'});
+                return res.status(200).json({message: 'Login successfully'});
 
             case false:
 
@@ -146,7 +141,7 @@ app.post('/api_access/login', async (req: Request, res: Response) => {
     } catch (e) {
 
         //console.log(e);
-        res.status(500).json({message: 'Internal Server Error while logging in'});
+        return res.status(500).json({message: 'Internal Server Error while logging in'});
     }
 
 });
@@ -171,7 +166,7 @@ app.post('/api_access/logout', verifyToken, async (req: Request, res: Response) 
         //Vérifier si le token de l'utilisateur est dans la liste des tokens révoqués
         if (revokedToken.has(userAccessToken)) {
 
-            return res.status(403).json({ message: 'Token invalide ou expiré. Accès refusé.' });
+            return res.status(403).json({ message: 'Permission denied' });
 
         }
 
@@ -187,7 +182,7 @@ app.post('/api_access/logout', verifyToken, async (req: Request, res: Response) 
     } catch (e) {
 
         //console.log(e);
-        res.status(500).json({message: 'Internal Server Error while logging out'});
+        return res.status(500).json({message: 'Internal Server Error while logging out'});
     }
 
 });

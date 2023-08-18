@@ -83,6 +83,18 @@ app.get('/${entity.name.toLowerCase()}', verifyToken, verifyUserAccessMiddleware
             schema: {$ref: '#/definitions/${entity.name}Dto'},
             description: "Array[] of ${entity.name}",
         }
+        #swagger.responses[401] = {
+            schema: {message: "Token is required. Access denied."},
+            description: "Error: unauthorized",
+        }
+        #swagger.responses[403] = {
+            schema: {message: 'Invalid token. Access denied. || Access denied.'},
+            description: "Error: Forbidden",
+        }
+        #swagger.responses[500] = {
+            schema: {message: "An error occurred while trying to get all ${entity.name}"},
+            description: "Error: Internal Server Error"
+        }
     */
 
     //Exécuter le code contenu dans le bloc try pour récupérer toutes les instances de ${entity.name}
@@ -123,7 +135,7 @@ app.get('/${entity.name.toLowerCase()}', verifyToken, verifyUserAccessMiddleware
     
         //console.log(e);
         
-        return res.status(500).json({message: 'Une erreur est survenue, imposible de récupérer les instances de ${entity.name}'});
+        return res.status(500).json({message: 'message: An error occurred while trying to get all ${entity.name}'});
 
     
     }
@@ -143,6 +155,18 @@ app.get('/${entity.name.toLowerCase()}/:id(\\\\d+)', verifyToken, verifyUserAcce
             #swagger.responses[200] = {
                 schema: {$ref: '#/definitions/${entity.name}Dto'},
                 description: "Instance of ${entity.name}"
+            }
+            #swagger.responses[401] = {
+            schema: {message: "Token is required. Access denied."},
+            description: "Error: unauthorized",
+            }
+            #swagger.responses[403] = {
+            schema: {message: 'Invalid token. Access denied. || Access denied.'},
+            description: "Error: Forbidden",
+            }   
+            #swagger.responses[500] = {
+                schema: {message: "An error occurred while trying to get ${entity.name} by id"},
+                description: "Error: Internal Server Error"
             }
     */
 
@@ -183,7 +207,7 @@ app.get('/${entity.name.toLowerCase()}/:id(\\\\d+)', verifyToken, verifyUserAcce
     } catch (e) {
     
         //console.log(e);
-        return res.status(500).json({message: \`Une erreur est survenue, imposible de récupérer une instance de ${entity.name} avec id \${req.params.id}\`});
+        return res.status(500).json({message: \`An error occurred while trying to get ${entity.name} with ID \${req.params.id}\`});
     
     }
 
@@ -203,6 +227,14 @@ ${personalizedControllers.map((personalizedController)=>{
                 schema: {$ref: '#/definitions/${entity.name}Dto'},
                 description: "Array[] of ${entity.name}",
             }
+            #swagger.responses[401] = {
+            schema: {message: "Token is required. Access denied."},
+            description: "Error: unauthorized",
+            }
+            #swagger.responses[403] = {
+            schema: {message: 'Invalid token. Access denied. || Access denied.'},
+            description: "Error: Forbidden",
+        }
             */
         
             //Exécuter le code contenu dans le bloc try pour récupérer une ou des instance(s) de ${entity.name.toLowerCase()} ${personalizedController.controllerParams.length > 0 ? 'par : ' + personalizedController.controllerParams.map((controllerParam) => { return controllerParam.paramName}).join(',') : ''}
@@ -265,6 +297,22 @@ app.post('/${entity.name.toLowerCase()}', verifyToken, verifyUserAccessMiddlewar
                 schema: {$ref: '#/definitions/${entity.name}Dto'},
                 description: "${entity.name} inserted successfully"
             }
+            #swagger.responses[201] = {
+                schema: {message: 'Instance of ${entity.name} created successfully.'},
+                description: "${entity.name} created"
+            }
+            #swagger.responses[401] = {
+            schema: {message: "Token is required. Access denied."},
+            description: "Error: unauthorized",
+            }
+            #swagger.responses[403] = {
+            schema: {message: 'Invalid token. Access denied. || Access denied.'},
+            description: "Error: Forbidden",
+            }
+            #swagger.responses[500] = {
+                schema: {message: 'An error occured while inserting ${entity.name}'},
+                description: "Error: Internal Server Error"
+            }
     */
 
     //Exécuter le code contenu dans le bloc try pour créer une instance de ${entity.name.toLowerCase()}
@@ -291,24 +339,22 @@ app.post('/${entity.name.toLowerCase()}', verifyToken, verifyUserAccessMiddlewar
                     //Supprimer ${entity.name.toLowerCase()} du cache et insérer ${entity.name.toLowerCase()} dans la base de données
                     await deleteCache(req, res, await insert(${entity.name}, ${entity.name.toLowerCase()}ToInsert))
                     
-                    break;
-                
+                    return res.status(201).json({message: 'Instance of ${entity.name} created successfully.'})
+                                    
                 }
                 //Si ${entity.name.toLowerCase()} n'est pas en cache, insérer ${entity.name.toLowerCase()} dans la base de données
                 await insert(${entity.name}, ${entity.name.toLowerCase()}ToInsert)
                 
-                res.status(201).json({message: 'Une instance de ${entity.name.toLowerCase()} a été créée avec succès'})
+                return res.status(201).json({message: 'Instance of ${entity.name} created successfully.'})
                 
-                break;
                 
             //Si ${entity.name.toLowerCase()} n'est pas à mettre en cache    
             case false:
                 //Insérer ${entity.name.toLowerCase()} dans la base de données
                 await insert(${entity.name}, ${entity.name.toLowerCase()}ToInsert)
                 
-                res.status(201).json({message: 'Une instance de ${entity.name.toLowerCase()} a été créée avec succès'})
+                return res.status(201).json({message: 'Instance of ${entity.name} created successfully.'})
             
-                break;
         
         }
         
@@ -316,8 +362,7 @@ app.post('/${entity.name.toLowerCase()}', verifyToken, verifyUserAccessMiddlewar
     } catch (e) {
     
         //console.log(e);
-        res.status(500).json({message: 'Une erreur est survenue, imposible de créer une instance de ${entity.name.toLowerCase()}'});
-        return;
+        return res.status(500).json({message: 'an error occurred while inserting ${entity.name}}'});
     
     }
 
@@ -341,6 +386,18 @@ app.put('/${entity.name.toLowerCase()}/:id(\\\\d+)', verifyToken, verifyUserAcce
             schema: {$ref: '#/definitions/${entity.name}Dto'},
             description: "${entity.name} updated successfully"
         }   
+        #swagger.responses[401] = {
+            schema: {message: "Token is required. Access denied."},
+            description: "Error: unauthorized",
+        }
+        #swagger.responses[403] = {
+            schema: {message: 'Invalid token. Access denied. || Access denied.'},
+            description: "Error: Forbidden",
+        }
+        #swagger.responses[500] = {
+            schema: {message: 'An error occured while updating ${entity.name} by id'},
+            description: "Error: Internal Server Error"
+        }
     */
 
     //Exécuter le code contenu dans le bloc try pour mettre à jour une instance de ${entity.name.toLowerCase()} par son id 
@@ -395,7 +452,7 @@ app.put('/${entity.name.toLowerCase()}/:id(\\\\d+)', verifyToken, verifyUserAcce
     } catch (e) {
     
         //console.log(e);
-        return res.status(500).json({message: \`Une erreur est survenue, imposible de mettre à jour une instance de ${entity.name} avec id \${req.params.id}\`});
+        return res.status(500).json({message: \`An error occurred while trying to update ${entity.name} with ID \${req.params.id}\`});
     
     }
 
@@ -415,6 +472,18 @@ app.delete('/${entity.name.toLowerCase()}/:id(\\\\d+)', verifyToken, verifyUserA
         #swagger.responses[200] = {
             schema: {$ref: '#/definitions/${entity.name}Dto'},
             description: "${entity.name} deleted successfully"
+        }
+        #swagger.responses[401] = {
+            schema: {message: "Token is required. Access denied."},
+            description: "Error: unauthorized",
+        }
+        #swagger.responses[403] = {
+            schema: {message: 'Invalid token. Access denied. || Access denied.'},
+            description: "Error: Forbidden",
+        }
+        #swagger.responses[500] = {
+            schema: {message: 'An error occured while deleting ${entity.name} by id'},
+            description: "Error: Internal Server Error"
         }
     */
     
@@ -465,7 +534,7 @@ app.delete('/${entity.name.toLowerCase()}/:id(\\\\d+)', verifyToken, verifyUserA
     } catch (e) {
     
         //console.log(e);
-        return res.status(500).json({message: \`Une erreur est survenue, imposible de supprimer une instance de ${entity.name} avec id \${req.params.id}\`});
+        return res.status(500).json({message: \`An error occurred while trying to delete ${entity.name} with ID \${req.params.id}\`});
     
     }
 

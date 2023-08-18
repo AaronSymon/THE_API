@@ -1,5 +1,4 @@
 import e, { Request, Response } from 'express';
-import {error403} from "../../requestResponse/errors";
 import isObjectNotEmpty from "../object/isObjectNotEmpty";
 import arrayIncludedInOtherArray from "../arrays/arrayIncludedInOtherArray";
 
@@ -49,13 +48,13 @@ export default function verifyUserAccessByRole(req: Request, res: Response,next:
 
                                 //Si non, retourner une erreur 403
                                 //If not, return an error 403
-                                return res.status(error403.status).json(error403.message);
+                                return res.status(403).json({message: 'Access denied.'});
                             }
                         } else {
 
                             //Si l'utilisateur ne possède pas tout les accès aux différents paramètres de la requête, renvoyer une erreur 403
                             //If the user does not have all the accesses to the different parameters of the request, return an error 403
-                            return res.status(error403.status).json(error403.message);
+                            return res.status(403).json({message: 'Access denied.'});
                         }
 
                     } else {
@@ -77,7 +76,7 @@ export default function verifyUserAccessByRole(req: Request, res: Response,next:
         } else {
             //Si l'utilisateur n'a pas accès à la ressource demandée, retourner une erreur 403
             //If the user does not have access to the requested resource, return an error 403
-            return res.status(error403.status).json(error403.message);
+            return res.status(403).json({message: 'access denied.'});
         }
     //Si une erreur est survenue, l'afficher dans la console
     //If an error occurred, display it in the console

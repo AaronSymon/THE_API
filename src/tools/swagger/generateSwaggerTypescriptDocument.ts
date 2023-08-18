@@ -218,7 +218,7 @@ const doc: object = {
 
                                 //Si la colonne n'est pas une colonne interdite et que la colonne n'est pas une relation, ajouter la colonne dans entityDefinitionsContent
                                 //If the column is not a banned column and the column is not a relation, add the column in entityDefinitionsContent
-                                if (! bannedColumns.has(entityColumn.propertyName) && ! entityRelationsNames.includes(entityColumn.propertyName)) {
+                                if (! dtoBannedColumns.has(entityColumn.propertyName) && ! entityRelationsNames.includes(entityColumn.propertyName)) {
 
                                     return `${entityColumn.propertyName}: '${entityColumn.type}',
                                 `
@@ -281,6 +281,10 @@ const doc: object = {
                                                 //Si la colonne n'est pas une colonne interdite, ajouter la colonne dans entityDefinitionsContent
                                                 //If the column is not a banned column, add the column in entityDefinitionsContent  
                                                 if (! entityRelationBannedColumn.has(entityRelationColumn.propertyName)) {
+
+                                                    if (entityRelationColumn.propertyName === entity.name.toLowerCase()) {
+                                                        return;
+                                                    }
 
                                                     return `${entityRelationColumn.propertyName}: '${entityRelationColumn.type}',
                                                                 `
@@ -375,6 +379,11 @@ swaggerAutogen(outputFile, endpointsFiles, doc).then(async() => {
 const bannedColumns: Set<string> = new Set<string>([
     'id',
     'role',
+    'createdAt',
+    'updatedAt'
+])
+
+const dtoBannedColumns: Set<string> = new Set<string>([
     'createdAt',
     'updatedAt'
 ])

@@ -109,7 +109,7 @@ ${entity.name.toLowerCase()}Router.get('/', verifyToken, verifyUserAccessMiddlew
     
         //console.log(e);
         
-        return res.status(500).json({message: 'Une erreur est survenue, imposible de récupérer les instances de ${entity.name}'});
+        return res.status(500).json({message: 'message: An error occurred while trying to get all ${entity.name}'});
 
     
     }
@@ -156,7 +156,7 @@ ${entity.name.toLowerCase()}Router.get('/:id(\\\\d+)', verifyToken, verifyUserAc
     } catch (e) {
     
         //console.log(e);
-        return res.status(500).json({message: \`Une erreur est survenue, imposible de récupérer une instance de ${entity.name} avec id \${req.params.id}\`});
+        return res.status(500).json({message: \`An error occurred while trying to get ${entity.name} with ID \${req.params.id}\`});
     
     }
 
@@ -237,21 +237,21 @@ ${entity.name.toLowerCase()}Router.post('/', verifyToken, verifyUserAccessMiddle
                     //Supprimer ${entity.name} du cache et insérer ${entity.name} dans la base de données
                     await deleteCache(req, res, await insert(${entity.name}, ${entity.name.toLowerCase()}ToInsert))
                     
-                    return res.status(201).json({message: 'Une instance de ${entity.name} a été créée avec succès'})
+                    return res.status(201).json({message: 'Instance of ${entity.name} created successfully.'})
                                     
                 }
                 
                 //Si ${entity.name} n'est pas en cache, insérer ${entity.name} dans la base de données
                 await insert(${entity.name}, ${entity.name.toLowerCase()}ToInsert)
                 
-                return res.status(201).json({message: 'Une instance de ${entity.name} a été créée avec succès'})
+                return res.status(201).json({message: 'Instance of ${entity.name} created successfully.'})
                                 
             //Si ${entity.name} n'est pas à mettre en cache    
             case false:
                 //Insérer ${entity.name.toLowerCase()} dans la base de données
                 await insert(${entity.name}, ${entity.name.toLowerCase()}ToInsert)
                 
-                return res.status(201).json({message: 'Une instance de ${entity.name} a été créée avec succès'})
+                return res.status(201).json({message: 'Instance of ${entity.name} created successfully.'})
                     
         }
         
@@ -259,7 +259,7 @@ ${entity.name.toLowerCase()}Router.post('/', verifyToken, verifyUserAccessMiddle
     } catch (e) {
     
         //console.log(e);
-        return res.status(500).json({message: 'Une erreur est survenue, imposible de créer une instance de ${entity.name.toLowerCase()}'});
+        return res.status(500).json({message: 'an error occurred while inserting ${entity.name}}'});
     
     }
 
@@ -320,7 +320,7 @@ ${entity.name.toLowerCase()}Router.put('/:id(\\\\d+)', verifyToken, verifyUserAc
     } catch (e) {
     
         //console.log(e);
-        return res.status(500).json({message: \`Une erreur est survenue, imposible de mettre à jour une instance de ${entity.name} avec id \${req.params.id}\`});
+        return res.status(500).json({message: \`An error occurred while trying to update ${entity.name} with ID \${req.params.id}\`});
     
     }
 
@@ -376,7 +376,7 @@ ${entity.name.toLowerCase()}Router.delete('/:id(\\\\d+)', verifyToken, verifyUse
     } catch (e) {
     
         //console.log(e);
-        return res.status(500).json({message: \`Une erreur est survenue, imposible de supprimer une instance de ${entity.name} avec id \${req.params.id}\`});
+        return res.status(500).json({message: \`An error occurred while trying to delete ${entity.name} with ID \${req.params.id}\`});
     
     }
 

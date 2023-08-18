@@ -6,8 +6,6 @@ export function getDtoPropertyNames(entity: Function) {
     const entityDto = searchEntityDto(dtosArray, entity.name);
     const functionText = entityDto.toString();
 
-    console.log(functionText)
-
     const searchString = entity.name.toLowerCase();
     let properties: string[] = [];
 
