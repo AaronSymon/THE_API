@@ -132,9 +132,9 @@ dist
 build/
 
 #entity Generated files
-src/access
-src/cache
-src/dto
+src/access/*.access.ts
+src/cache/*.cache.ts
+src/dto/*.dto.ts
 src/router/*.router.ts
 src/router/personalizedController/*.personalizedController.ts
 src/tools/swagger/swaggerImplement/*.swaggerImplement.ts
