@@ -40,7 +40,7 @@ export const ${entity.name.toLowerCase()}Access : Set<entityAccess> = new Set([`
                 accessMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
                 //AccessParams accepted in URL for GET method only (ex: /${entity.name.toLowerCase()}/:${entityPropertyNames[0]}, /${entity.name.toLowerCase()}/:${entityPropertyNames[1]} , /${entity.name.toLowerCase()}/:${entityPropertyNames[0]}/:${entityPropertyNames[1]})
                 //If request method is GET but request params are not included in the array, the access will be denied
-                getAccessParams: ${entityPropertyNames.length > 0 ? `["${entityPropertyNames.join('","')}"]` : `[]`}
+                getAccessParams: ${entityPropertyNames.length > 0 ? `["id", "${entityPropertyNames.join('","')}"]` : `[]`}
             },`
     }
 
