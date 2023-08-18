@@ -3,9 +3,7 @@ import * as fs from 'fs'
 import * as process from 'process';
 import * as dotenv from 'dotenv';
 import {AppDataSource} from "../../data-source.config";
-import {searchEntityDto} from "../dtos/searchEntityDto";
-import {dtosArray} from "../../array/dtos.array";
-import {getFunctionParams} from "../functions/getFunctionParams";
+import {getDtoPropertyNames} from "../dtos/getDtoPropertyNames";
 
 dotenv.config()
 
@@ -81,14 +79,10 @@ const doc: object = {
                 entityRelations.forEach(entityRelation => {
                     entityRelationsNames.push(entityRelation.propertyName)
                 })
-
-                //Définir entityDto qui contient les informations du dto de la table Entity
-                //Define entityDto which contains the informations of the Entity table dto
-                const entityDto = searchEntityDto(dtosArray, `${entity.name}`)
         
                 //Définir entityDtoParams qui contient les informations des paramètres du dto de la table Entity
                 //Define entityDtoParams which contains the informations of the parameters of the Entity table dto
-                const entityDtoParams = getFunctionParams(entityDto)
+                const entityDtoParams = getDtoPropertyNames(entity)
                 
                 //Définir entityDefinitionsContent qui contiendra les informations des définitions de la table Entity
                 //Define entityDefinitionsContent which will contain the informations of the definitions of the Entity table

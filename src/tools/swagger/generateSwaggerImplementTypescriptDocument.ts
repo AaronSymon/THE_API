@@ -30,6 +30,10 @@ const app = express()
 
 //Import entity ${entity.name}
 import {${entity.name}} from "../../../entity/${entity.name.toLowerCase()}.entity";
+
+//Import du dto de l'entité ${entity.name}
+import { ${entity.name}Dto } from '../../../dto/${entity.name.toLowerCase()}.dto';
+
 //Import entity ${entity.name}Access
 import {${entity.name.toLowerCase()}Access} from "../../../access/${entity.name.toLowerCase()}.access";
 
@@ -84,37 +88,34 @@ app.get('/${entity.name.toLowerCase()}', verifyToken, verifyUserAccessMiddleware
     //Exécuter le code contenu dans le bloc try pour récupérer toutes les instances de ${entity.name}
     try {
     
-        //Vérifier si ${entity.name.toLowerCase()} est à mettre en cache
+        //Vérifier si ${entity.name} est à mettre en cache
         switch (${entity.name.toLowerCase()}Cache.isEntityCached) {
         
-            //Si ${entity.name.toLowerCase()} est à mettre en cache
+            //Si ${entity.name} est à mettre en cache
             case true:
                 
-                //Vérifier si ${entity.name.toLowerCase()} est déjà en cache
+                //Vérifier si ${entity.name} est déjà en cache
                 let isCachedExisting : boolean = searchCache(req)
                 
-                //Si ${entity.name.toLowerCase()} est déjà en cache   
+                //Si ${entity.name} est déjà en cache   
                 if(isCachedExisting) {
                    
-                   //Récupérer ${entity.name.toLowerCase()} en cache
-                   res.status(200).json(cache.get(req.url))
-                   break;
+                   //Récupérer ${entity.name} en cache
+                   return res.status(200).json(cache.get(req.url))
                    
                 }
                 
-                //Si ${entity.name.toLowerCase()} n'est pas en cache, le mettre en cache
-                createCache(req, res, await getAll(${entity.name}))
-            
-                break;
-            
-            //Si ${entity.name.toLowerCase()} n'est pas à mettre en cache
+                //Si ${entity.name} n'est pas en cache, le mettre en cache
+                // @ts-ignore
+                return createCache(req, res, await getAll <${entity.name}, ${entity.name}Dto>(${entity.name}, ${entity.name}Dto))
+                        
+            //Si ${entity.name} n'est pas à mettre en cache
             case false:
             
-                //Récupérer toutes les instances de ${entity.name.toLowerCase()}
-                res.status(200).json(await getAll(${entity.name}));
-            
-                break;
-        
+                //Récupérer toutes les instances de ${entity.name}
+                // @ts-ignore
+                return res.status(200).json(await getAll <${entity.name}, ${entity.name}Dto>(${entity.name}, ${entity.name}Dto));
+                   
         }
     
     //Si une erreur est survenue, renvoyer une réponse avec le code 500
@@ -122,8 +123,8 @@ app.get('/${entity.name.toLowerCase()}', verifyToken, verifyUserAccessMiddleware
     
         //console.log(e);
         
-        res.status(500).json({message: 'Une erreur est survenue, imposible de récupérer les instances de ${entity.name.toLowerCase()}'});
-        return;
+        return res.status(500).json({message: 'Une erreur est survenue, imposible de récupérer les instances de ${entity.name}'});
+
     
     }
 
@@ -148,43 +149,41 @@ app.get('/${entity.name.toLowerCase()}/:id(\\\\d+)', verifyToken, verifyUserAcce
     //Exécuter le code contenu dans le bloc try pour récupérer une instance de ${entity.name.toLowerCase()} par son id
     try {
     
-        //Vérifier si ${entity.name.toLowerCase()} est à mettre en cache
+        //Vérifier si ${entity.name} est à mettre en cache
         switch (${entity.name.toLowerCase()}Cache.isEntityCached) {
            
-            //Si ${entity.name.toLowerCase()} est à mettre en cache
+            //Si ${entity.name} est à mettre en cache
             case true:
                
-                //Vérifier si ${entity.name.toLowerCase()} est déjà en cache
+                //Vérifier si ${entity.name} est déjà en cache
                 let isCachedExisting : boolean = searchCache(req)
                
-                //Si ${entity.name.toLowerCase()} est déjà en cache
+                //Si ${entity.name} est déjà en cache
                 if(isCachedExisting) {
                 
-                    //Récupérer ${entity.name.toLowerCase()} en cache
-                    res.status(200).json(cache.get(req.url))
+                    //Récupérer ${entity.name} en cache
+                    return res.status(200).json(cache.get(req.url))
                     
                 }
                 
-                //Si ${entity.name.toLowerCase()} n'est pas en cache, le mettre en cache
-                createCache(req,res, await getOne(${entity.name}, Number(req.params.id)))
-               
-                break;
-            
-            //Si ${entity.name.toLowerCase()} n'est pas à mettre en cache
+                //Si ${entity.name} n'est pas en cache, le mettre en cache
+                // @ts-ignore
+                return createCache(req,res, await getOne<${entity.name}, ${entity.name}Dto>(${entity.name}, Number(req.params.id), ${entity.name}Dto))
+                           
+            //Si ${entity.name} n'est pas à mettre en cache
             case false:
            
-                //Récupérer une instance de ${entity.name.toLowerCase()} par son id
-                res.status(200).json(await getOne(${entity.name}, Number(req.params.id)))
-           
-                break;
-        
+                //Récupérer une instance de ${entity.name} par son id
+                // @ts-ignore
+                return res.status(200).json(await getOne<${entity.name}, ${entity.name}Dto>(${entity.name}, Number(req.params.id), ${entity.name}Dto))
+                   
         }
     
     //Si une erreur est survenue, renvoyer une réponse avec le code 500
     } catch (e) {
     
         //console.log(e);
-        res.status(500).json({message: \`Une erreur est survenue, imposible de récupérer une instance de ${entity.name.toLowerCase()} avec id \${req.params.id}\`});
+        return res.status(500).json({message: \`Une erreur est survenue, imposible de récupérer une instance de ${entity.name} avec id \${req.params.id}\`});
     
     }
 
@@ -347,58 +346,56 @@ app.put('/${entity.name.toLowerCase()}/:id(\\\\d+)', verifyToken, verifyUserAcce
     //Exécuter le code contenu dans le bloc try pour mettre à jour une instance de ${entity.name.toLowerCase()} par son id 
     try {
     
-        //Créer une instance de ${entity.name.toLowerCase()}
+        //Créer une instance de ${entity.name}
         let ${entity.name.toLowerCase()}ToUpdate: ${entity.name} = new ${entity.name}()
         
-        //Déclarer une variable pour stocker l'instance de ${entity.name.toLowerCase()} mise à jour
+        //Déclarer une variable pour stocker l'instance de ${entity.name} mise à jour
         let updated;
         
-        //Affecter les valeurs des propriétés de ${entity.name.toLowerCase()} avec les valeurs contenues dans le corps de la requête
+        //Affecter les valeurs des propriétés de ${entity.name.toLowerCase()}ToUpdate avec les valeurs contenues dans le corps de la requête
         ${entityPropertiesNames.map((propertyName: string) => `${entity.name.toLowerCase()}ToUpdate.${propertyName} = req.body.${propertyName}`).join('\n        ')}
         
-        //Vérifier si ${entity.name.toLowerCase()} est à mettre en cache
+        //Vérifier si ${entity.name} est à mettre en cache
         switch (${entity.name.toLowerCase()}Cache.isEntityCached) {
         
-            //Si ${entity.name.toLowerCase()} est à mettre en cache
+            //Si ${entity.name} est à mettre en cache
             case true:
                 
-                //Vérifier si ${entity.name.toLowerCase()} est déjà en cache
+                //Vérifier si ${entity.name} est déjà en cache
                 let isCachedExisting : boolean = searchCache(req)
                 
-                //Si ${entity.name.toLowerCase()} est déjà en cache
+                //Si ${entity.name} est déjà en cache
                 if(isCachedExisting) {
                     
-                    //Supprimer ${entity.name.toLowerCase()} du cache et mettre à jour ${entity.name.toLowerCase()} dans la base de données
-                    await deleteCache(req, res, await update(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate))
-                    break;
+                    //Supprimer ${entity.name} du cache et mettre à jour ${entity.name} dans la base de données
+                    //@ts-ignore
+                    return await deleteCache(req, res, await update<${entity.name}, ${entity.name}Dto>(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate, ${entity.name}Dto))
                 
                 }
             
-                //Si ${entity.name.toLowerCase()} n'est pas en cache, mettre à jour ${entity.name.toLowerCase()} dans la base de données
-                updated = await update(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate)
+                //Si ${entity.name} n'est en cache, mettre à jour ${entity.name} dans la base de données
+                //@ts-ignore
+                updated = await update<${entity.name}, ${entity.name}Dto>(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate, ${entity.name}Dto)
                 
-                //Envoyer une réponse avec le code 200 et l'instance de ${entity.name.toLowerCase()} mise à jour
-                res.status(200).json(updated)
-            
-                break;
-            
-            //Si ${entity.name.toLowerCase()} n'est pas à mettre en cache    
+                //Envoyer une réponse avec le code 200 et l'instance de ${entity.name} mise à jour
+                return res.status(200).json(updated)
+                        
+            //Si ${entity.name} n'est pas à mettre en cache    
             case false:
             
-                //Mettre à jour ${entity.name.toLowerCase()} dans la base de données
-                updated = await update(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate)
+                //Mettre à jour ${entity.name} dans la base de données
+                //@ts-ignore
+                updated = await update<${entity.name}, ${entity.name}Dto>(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate, ${entity.name}Dto)
                 
-                //Envoyer une réponse avec le code 200 et l'instance de ${entity.name.toLowerCase()} mise à jour
-                res.status(200).json(updated)
-            
-                break;
-        
+                //Envoyer une réponse avec le code 200 et l'instance de ${entity.name} mise à jour
+                return res.status(200).json(updated)
+                    
         }
     //Si une erreur est survenue, renvoyer une réponse avec le code 500
     } catch (e) {
     
         //console.log(e);
-        res.status(500).json({message: \`Une erreur est survenue, imposible de mettre à jour une instance de ${entity.name.toLowerCase()} avec id \${req.params.id}\`});
+        return res.status(500).json({message: \`Une erreur est survenue, imposible de mettre à jour une instance de ${entity.name} avec id \${req.params.id}\`});
     
     }
 
@@ -424,53 +421,51 @@ app.delete('/${entity.name.toLowerCase()}/:id(\\\\d+)', verifyToken, verifyUserA
     //Exécuter le code contenu dans le bloc try pour supprimer une instance de ${entity.name.toLowerCase()} par son id
     try {
     
-        //Déclarer une variable pour stocker l'instance de ${entity.name.toLowerCase()} supprimée
+        //Déclarer une variable pour stocker l'instance de ${entity.name} supprimée
         let deleted;
     
-        //Vérifier si ${entity.name.toLowerCase()} est à mettre en cache
+        //Vérifier si ${entity.name} est à mettre en cache
         switch (${entity.name.toLowerCase()}Cache.isEntityCached) {
         
-            //Si ${entity.name.toLowerCase()} est à mettre en cache
+            //Si ${entity.name} est à mettre en cache
             case true:
             
-                //Vérifier si ${entity.name.toLowerCase()} est déjà en cache
+                //Vérifier si ${entity.name} est déjà en cache
                 const isCachedExisting : boolean = searchCache(req)
                 
-                //Si ${entity.name.toLowerCase()} est déjà en cache
+                //Si ${entity.name} est déjà en cache
                 if(isCachedExisting) {
                 
-                    //Supprimer ${entity.name.toLowerCase()} du cache et supprimer ${entity.name.toLowerCase()} de la base de données
-                    await deleteCache(req, res, await deleteOne(${entity.name}, Number(req.params.id)))
-                    break;
+                    //Supprimer ${entity.name} du cache et supprimer ${entity.name} de la base de données
+                    //@ts-ignore
+                    return await deleteCache(req, res, await deleteOne<${entity.name}>(${entity.name}, Number(req.params.id)))
                 
                 }
                 
-                //Si ${entity.name.toLowerCase()} n'est pas en cache, supprimer ${entity.name.toLowerCase()} de la base de données
-                deleted = await deleteOne(${entity.name}, Number(req.params.id))
+                //Si ${entity.name} n'est pas en cache, supprimer ${entity.name} de la base de données
+                //@ts-ignore
+                deleted = await deleteOne<${entity.name}>(${entity.name}, Number(req.params.id))
                 
                 //Envoyer une réponse avec le code 200 et l'instance de ${entity.name.toLowerCase()} supprimée
-                res.status(200).json(deleted)
-            
-                break;
-                
-            //Si ${entity.name.toLowerCase()} n'est pas à mettre en cache    
+                return res.status(200).json(deleted);
+                            
+            //Si ${entity.name} n'est pas à mettre en cache    
             case false:
             
                 //Supprimer ${entity.name.toLowerCase()} de la base de données
-                deleted = await deleteOne(${entity.name}, Number(req.params.id))
+                //@ts-ignore
+                deleted = await deleteOne<${entity.name}>(${entity.name}, Number(req.params.id));
                 
                 //Envoyer une réponse avec le code 200 et l'instance de ${entity.name.toLowerCase()} supprimée
-                res.status(200).json(deleted)
-            
-                break;
-        
+                return res.status(200).json(deleted);
+                    
         }
     
     //Si une erreur est survenue, renvoyer une réponse avec le code 500
     } catch (e) {
     
         //console.log(e);
-        res.status(500).json({message: \`Une erreur est survenue, imposible de supprimer une instance de ${entity.name.toLowerCase()} avec id \${req.params.id}\`});
+        return res.status(500).json({message: \`Une erreur est survenue, imposible de supprimer une instance de ${entity.name} avec id \${req.params.id}\`});
     
     }
 

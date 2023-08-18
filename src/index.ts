@@ -95,9 +95,13 @@ app.use(expressWinston.errorLogger({
     )
 }));
 
-app.get('/', (req: Request, res: Response) => {
+app.get('/', async (req: Request, res: Response) => {
+
     res.send('Hello World!')
+
 })
+
+
 
 //Declaration des routers
 //Declaration of routers
@@ -113,3 +117,4 @@ app.listen(process.env.SV_PORT, () => {
     console.log(`${process.env.APP_NAME}, using express is listening on port http://${process.env.SV_HOSTNAME}:${process.env.SV_PORT}/`)
     console.log(`Swagger documentation is available on http://${process.env.SV_HOSTNAME}:${process.env.SV_PORT}/api`)
 })
+

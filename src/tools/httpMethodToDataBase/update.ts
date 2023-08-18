@@ -5,10 +5,38 @@ import { getEntityRelationByType } from "../entities/getEntityRelationByType";
 import {searchDto} from "../dtos/searchDto";
 import {dtosArray} from "../../array/dtos.array";
 import {getEntityDtoValues} from "../dtos/getEntityDtoValue";
+import {mapEntityToDTO} from "../dtos/mapEntityToDto";
+
+export default async function update<Entity, DTO>(
+    entity: Entity,
+    entityId: number,
+    updateData: Partial<Entity>,
+    entityDtoConstructor: new (entity: Entity) => DTO
+): Promise<DTO | { message: string }> {
+        try {
+                // @ts-ignore
+                const entityRepository = AppDataSource.getRepository(entity);
+                const existingEntity = await entityRepository.findOne({where: {id: entityId}});
+
+                if (!existingEntity) {
+                        // @ts-ignore
+                        return { message: `${entity.name} with ID ${entityId} not found` };
+                }
+
+                Object.assign(existingEntity, updateData);
+                const updatedEntity = await entityRepository.save(existingEntity);
+
+                // @ts-ignore
+                return mapEntityToDTO(updatedEntity, entityDtoConstructor);
+        } catch (error) {
+                // @ts-ignore
+                return { message: `An error occurred while trying to update ${entity.name} with ID ${entityId}` };
+        }
+}
 
 //Fonction update, permet de mettre à jour une entité en base de données
 //Function update, allows to update an entity in the database
-export default async function update(entity: Function, id: number, datas: Partial<any>) {
+export async function updates(entity: Function, id: number, datas: Partial<any>) {
 
         //Exécuter le code contenu dans le bloc try
         //Execute the code contained in the try block

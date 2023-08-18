@@ -2,10 +2,32 @@ import {AppDataSource} from "../../data-source.config";
 import {searchDto} from "../dtos/searchDto";
 import {dtosArray} from "../../array/dtos.array";
 import {getEntityDtoValues} from "../dtos/getEntityDtoValue";
+import {mapEntityToDTO} from "../dtos/mapEntityToDto";
+
+export default async function getAll<Entity, DTO>(
+    entity: Entity,
+    entityDtoConstructor: new (entity: Entity) => DTO
+): Promise<DTO[]| {message: string}> {
+    try {
+        // @ts-ignore
+        const entityRepository = AppDataSource.getRepository(entity);
+        const all = await entityRepository.find(entity);
+
+        if (!all || all.length === 0) {
+            return [];
+        }
+
+        // @ts-ignore
+        return mapEntityToDTO(all, entityDtoConstructor);
+    } catch (error) {
+        // @ts-ignore
+        return { message: `message: An error occurred while trying to get all ${entity.name}` };
+    }
+}
 
 //Fonction getAll permettant de récupérer toutes les instances d'une entité
 //Function getAll allowing to get all instances of an entity
-export default async function getAll(entity : Function)  {
+export async function getAlls(entity : Function)  {
 
     //Exécuter le code contenu dans le bloc try
     //Execute the code contained in the try block

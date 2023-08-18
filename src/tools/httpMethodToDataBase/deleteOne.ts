@@ -5,10 +5,35 @@ import {searchDto} from "../dtos/searchDto";
 import {dtosArray} from "../../array/dtos.array";
 import {getEntityDtoValues} from "../dtos/getEntityDtoValue";
 
+export default async function deleteOne<Entity>(
+    entity: Entity,
+    entityId: number
+): Promise<{ message: string }> {
+        try {
+
+                // @ts-ignore
+                const entityRepository = AppDataSource.getRepository(entity);
+
+                const existingEntity = await entityRepository.findOne({where: { id: entityId }});
+
+                if (!existingEntity) {
+                        // @ts-ignore
+                        return { message: `${entity.name} with ID ${entityId} not found` };
+                }
+
+                await entityRepository.remove(existingEntity);
+
+                // @ts-ignore
+                return { message: `${entity.name} with ID ${entityId} has been deleted` };
+        } catch (error) {
+                // @ts-ignore
+                return { message: `An error occurred while trying to delete ${entity.name} with ID ${entityId}` };
+        }
+}
 
 //Fonction deleteOne, permet de supprimer une entité en base de données
 //Fucntion deleteOne, allow to delete one entity into database
-export default async function deleteOne(entity: Function, id: number) {
+export async function deleteOnes(entity: Function, id: number) {
 
         //Exécuter le code contenu dans le try
         //Execute try's content

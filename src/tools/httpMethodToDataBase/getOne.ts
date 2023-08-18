@@ -2,10 +2,34 @@ import {AppDataSource} from "../../data-source.config";
 import {dtosArray} from "../../array/dtos.array";
 import {searchEntityDto} from "../dtos/searchEntityDto";
 import {getEntityDtoValues} from "../dtos/getEntityDtoValue";
+import {mapEntityToDTO} from "../dtos/mapEntityToDto";
+
+export default async function getOne<Entity, DTO>(
+    entity: Entity,
+    entityId: number,
+    entityDtoConstructor: new (entity: Entity) => DTO
+): Promise<DTO | { message: string }> {
+    try {
+        // @ts-ignore
+        const entityRepository = AppDataSource.getRepository(entity);
+        const entityInstance = await entityRepository.findOne({ where: { id: entityId } });
+
+        if (!entityInstance) {
+            // @ts-ignore
+            return { message: `${entity.name} with ID ${entityId} not found` };
+        }
+
+        // @ts-ignore
+        return mapEntityToDTO(entityInstance, entityDtoConstructor);
+    } catch (error) {
+        // @ts-ignore
+        return { message: `An error occurred while trying to get ${entity.name} with ID ${entityId}` };
+    }
+}
 
 //Fonction getOne, permet de récupérer une entité par son id
 //getOne function, allows to retrieve an entity by its id
-export default async function getOne(entity: Function, id: number) {
+export  async function getOnes(entity: Function, id: number) {
 
     //Exécuter le code contenu dans le bloc try
     //Execute the code contained in the try block

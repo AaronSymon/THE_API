@@ -58,6 +58,6 @@
     "generate:access": "ts-node build/typescriptDocumentsGenerator/generateEntitiesAccessTypescriptDocuments.js && npx tsc",
     "generate:routers": "npx tsc && ts-node build/typescriptDocumentsGenerator/generateEntitiesRouterTypescriptDocuments.js",
     "generate:swagger": "npx tsc && ts-node build/typescriptDocumentsGenerator/generateSwagger.js",
-    "generate:swaggerImplements": "npx tsc && ts-node ./build/typescriptDocumentsGenerator/generateSwaggerImplement.js"
+    "generate:swaggerImplements": "ts-node ./build/typescriptDocumentsGenerator/generateSwaggerImplement.js"
   }
 }

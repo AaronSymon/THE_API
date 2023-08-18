@@ -7,12 +7,8 @@ import * as fs from 'fs';
 //Import users roles
 import {userRoles} from "../../access/userRoles/userRoles";
 
-//Import dtos
-import {searchDto} from "../dtos/searchDto";
-import {dtosArray} from "../../array/dtos.array";
-
-//Import getFunctionParams
-import {getFunctionParams} from "../functions/getFunctionParams";
+//Import getEntityPropertyNames
+import {getEntityPropertiesName} from "../entities/getEntityPropertyNames";
 
 //Fonction permettant de générer un document typescript contenant les informations d'accès aux différentes méthodes de l'API pour une entité donnée
 //Function for generating a typescript document containing access information to the different methods of the API for a given entity
@@ -24,7 +20,7 @@ export default function generateEntityAccessTypescriptDocument (entity: Function
 
     //Récupérer les paramètres du DTO de l'entité
     //Get the parameters of the entity DTO
-    const entityDtoParameters = getFunctionParams(searchDto(dtosArray, `${entity.name}`))
+    const entityPropertyNames = getEntityPropertiesName(entity)
 
     //Générer le contenu du document typescript
     //Generate the content of the typescript document
@@ -42,9 +38,9 @@ export const ${entity.name.toLowerCase()}Access : Set<entityAccess> = new Set([`
             {
                 userRole: "${userRole}",
                 accessMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
-                //AccessParams accepted in URL for GET method only (ex: /${entity.name.toLowerCase()}/:${entityDtoParameters[0]}, /${entity.name.toLowerCase()}/:${entityDtoParameters[1]} , /${entity.name.toLowerCase()}/:${entityDtoParameters[0]}/:${entityDtoParameters[1]})
+                //AccessParams accepted in URL for GET method only (ex: /${entity.name.toLowerCase()}/:${entityPropertyNames[0]}, /${entity.name.toLowerCase()}/:${entityPropertyNames[1]} , /${entity.name.toLowerCase()}/:${entityPropertyNames[0]}/:${entityPropertyNames[1]})
                 //If request method is GET but request params are not included in the array, the access will be denied
-                getAccessParams: ${entityDtoParameters.length > 0 ? `["${entityDtoParameters.join('","')}"]` : `[]`}
+                getAccessParams: ${entityPropertyNames.length > 0 ? `["${entityPropertyNames.join('","')}"]` : `[]`}
             },`
     }
 

@@ -1,7 +1,5 @@
 import * as path from 'path';
 import * as glob from 'glob';
-import {searchEntityDto} from "../../dtos/searchEntityDto";
-import {dtosArray} from "../../../array/dtos.array";
 import {getFunctionParams} from "../../functions/getFunctionParams";
 import {AppDataSource} from "../../../data-source.config";
 
@@ -25,11 +23,7 @@ export default async function researchEntityPersonnalizedControllers(entity: Fun
 
     //Définir entityDto qui contient les informations du dto de l'entité
     //Define entityDto which contains the information of the dto of the entity
-    const entityDto = searchEntityDto(dtosArray, entity.name)
-
-    //Définir entityDtoParams qui contient les paramètres du dto de l'entité
-    //Define entityDtoParams which contains the parameters of the dto of the entity
-    const entityDtoParams = getFunctionParams(entityDto)
+    //const entityDto = searchEntityDto(dtosArray, entity.name)
 
     //Définir directoryPath qui contient le chemin du dossier des controllers personnalisés
     //Define directoryPath which contains the path of the personalized controllers folder
@@ -72,9 +66,6 @@ export default async function researchEntityPersonnalizedControllers(entity: Fun
                 //Browse isPersonalizedControllerParams
                 isPersonalizedControllerParams.forEach((isPersonalizedControllerParam) => {
 
-                    //Vérifier si entityDtoParams contient isPersonalizedControllerParam
-                    //Check if entityDtoParams contains isPersonalizedControllerParam
-                    if (entityDtoParams.includes(isPersonalizedControllerParam)) {
 
                         //Définir entityColumn qui contient la colonne de la table entity
                         //Define entityColumn which contains the column of the table entity
@@ -111,7 +102,7 @@ export default async function researchEntityPersonnalizedControllers(entity: Fun
                         //Insert in controllerParams the name, the type and the regex of the parameter
                         controllerParams.push({paramName: entityColumnName, paramType: entityColumnType, paramRegex: paramRegex})
 
-                    }
+
                 })
 
                 //Définir personalizedController qui contient le controller personnalisé

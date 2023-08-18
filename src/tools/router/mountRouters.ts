@@ -34,6 +34,7 @@ export default function mountRouter () {
         //Récupérer le module
         //Get the module
         const module = require(router);
+
         //Pour chaque clé du module, vérifier si c'est un router
         //For each key of the module, check if it's a router
         Object.keys(module).forEach((key) => {

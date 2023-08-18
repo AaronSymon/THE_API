@@ -27,6 +27,10 @@ import { Request, Response } from 'express';
 
 //Import de l'entité ${entity.name}
 import {${entity.name}} from "../entity/${entity.name.toLowerCase()}.entity";
+
+//Import du dto de l'entité ${entity.name}
+import { ${entity.name}Dto } from '../dto/${entity.name.toLowerCase()}.dto';
+
 //Import des access de ${entity.name}
 import {${entity.name.toLowerCase()}Access} from "../access/${entity.name.toLowerCase()}.access";
 
@@ -88,13 +92,15 @@ ${entity.name.toLowerCase()}Router.get('/', verifyToken, verifyUserAccessMiddlew
                 }
                 
                 //Si ${entity.name} n'est pas en cache, le mettre en cache
-                return createCache(req, res, await getAll(${entity.name}))
+                // @ts-ignore
+                return createCache(req, res, await getAll <${entity.name}, ${entity.name}Dto>(${entity.name}, ${entity.name}Dto))
                         
             //Si ${entity.name} n'est pas à mettre en cache
             case false:
             
                 //Récupérer toutes les instances de ${entity.name}
-                return res.status(200).json(await getAll(${entity.name}));
+                // @ts-ignore
+                return res.status(200).json(await getAll <${entity.name}, ${entity.name}Dto>(${entity.name}, ${entity.name}Dto));
                    
         }
     
@@ -134,13 +140,15 @@ ${entity.name.toLowerCase()}Router.get('/:id(\\\\d+)', verifyToken, verifyUserAc
                 }
                 
                 //Si ${entity.name} n'est pas en cache, le mettre en cache
-                return createCache(req,res, await getOne(${entity.name}, Number(req.params.id)))
+                // @ts-ignore
+                return createCache(req,res, await getOne<${entity.name}, ${entity.name}Dto>(${entity.name}, Number(req.params.id), ${entity.name}Dto))
                            
             //Si ${entity.name} n'est pas à mettre en cache
             case false:
            
                 //Récupérer une instance de ${entity.name} par son id
-                return res.status(200).json(await getOne(${entity.name}, Number(req.params.id)))
+                // @ts-ignore
+                return res.status(200).json(await getOne<${entity.name}, ${entity.name}Dto>(${entity.name}, Number(req.params.id), ${entity.name}Dto))
                    
         }
     
@@ -153,6 +161,7 @@ ${entity.name.toLowerCase()}Router.get('/:id(\\\\d+)', verifyToken, verifyUserAc
     }
 
 });
+
 
 ${personalizedControllers.map((personalizedController)=>{
         return `//Méthode GET pour récupérer une ou des instance(s) de ${entity.name} ${personalizedController.controllerParams.length > 0 ? 'par : ' + personalizedController.controllerParams.map((controllerParam) => { return controllerParam.paramName}).join(',') : ''}
@@ -284,12 +293,14 @@ ${entity.name.toLowerCase()}Router.put('/:id(\\\\d+)', verifyToken, verifyUserAc
                 if(isCachedExisting) {
                     
                     //Supprimer ${entity.name} du cache et mettre à jour ${entity.name} dans la base de données
-                    return await deleteCache(req, res, await update(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate))
+                    //@ts-ignore
+                    return await deleteCache(req, res, await update<${entity.name}, ${entity.name}Dto>(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate, ${entity.name}Dto))
                 
                 }
             
-                //Si ${entity.name} n'est pas en cache, mettre à jour ${entity.name} dans la base de données
-                updated = await update(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate)
+                //Si ${entity.name} n'est en cache, mettre à jour ${entity.name} dans la base de données
+                //@ts-ignore
+                updated = await update<${entity.name}, ${entity.name}Dto>(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate, ${entity.name}Dto)
                 
                 //Envoyer une réponse avec le code 200 et l'instance de ${entity.name} mise à jour
                 return res.status(200).json(updated)
@@ -298,7 +309,8 @@ ${entity.name.toLowerCase()}Router.put('/:id(\\\\d+)', verifyToken, verifyUserAc
             case false:
             
                 //Mettre à jour ${entity.name} dans la base de données
-                updated = await update(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate)
+                //@ts-ignore
+                updated = await update<${entity.name}, ${entity.name}Dto>(${entity.name}, Number(req.params.id), ${entity.name.toLowerCase()}ToUpdate, ${entity.name}Dto)
                 
                 //Envoyer une réponse avec le code 200 et l'instance de ${entity.name} mise à jour
                 return res.status(200).json(updated)
@@ -336,12 +348,14 @@ ${entity.name.toLowerCase()}Router.delete('/:id(\\\\d+)', verifyToken, verifyUse
                 if(isCachedExisting) {
                 
                     //Supprimer ${entity.name} du cache et supprimer ${entity.name} de la base de données
-                    return await deleteCache(req, res, await deleteOne(${entity.name}, Number(req.params.id)))
+                    //@ts-ignore
+                    return await deleteCache(req, res, await deleteOne<${entity.name}>(${entity.name}, Number(req.params.id)))
                 
                 }
                 
                 //Si ${entity.name} n'est pas en cache, supprimer ${entity.name} de la base de données
-                deleted = await deleteOne(${entity.name}, Number(req.params.id))
+                //@ts-ignore
+                deleted = await deleteOne<${entity.name}>(${entity.name}, Number(req.params.id))
                 
                 //Envoyer une réponse avec le code 200 et l'instance de ${entity.name.toLowerCase()} supprimée
                 return res.status(200).json(deleted);
@@ -350,7 +364,8 @@ ${entity.name.toLowerCase()}Router.delete('/:id(\\\\d+)', verifyToken, verifyUse
             case false:
             
                 //Supprimer ${entity.name.toLowerCase()} de la base de données
-                deleted = await deleteOne(${entity.name}, Number(req.params.id));
+                //@ts-ignore
+                deleted = await deleteOne<${entity.name}>(${entity.name}, Number(req.params.id));
                 
                 //Envoyer une réponse avec le code 200 et l'instance de ${entity.name.toLowerCase()} supprimée
                 return res.status(200).json(deleted);
