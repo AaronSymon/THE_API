@@ -53,9 +53,9 @@
     "migration:run": "npm run typeorm:config -- migration:run",
     "migration:revert": "npm run typeorm:config -- migration:revert",
     "generate:caches": "ts-node build/typescriptDocumentsGenerator/generateEntitiesCacheTypescriptDocuments.js && npx tsc",
-    "generate:personalizedControllers": "ts-node build/typescriptDocumentsGenerator/generateEntitiesPersonnalizedControllerTypescriptDocuments.js && npx tsc",
     "generate:access": "ts-node build/typescriptDocumentsGenerator/generateEntitiesAccessTypescriptDocuments.js && npx tsc",
     "generate:dtos": "npx tsc && ts-node build/typescriptDocumentsGenerator/generateEntitiesDtoTypescriptDocuments.js",
+    "generate:personalizedControllers": "ts-node build/typescriptDocumentsGenerator/generateEntitiesPersonnalizedControllerTypescriptDocuments.js && npx tsc",
     "generate:routers": "npx tsc && ts-node build/typescriptDocumentsGenerator/generateEntitiesRouterTypescriptDocuments.js",
     "generate:swagger": "npx tsc && ts-node build/typescriptDocumentsGenerator/generateSwagger.js",
     "generate:swaggerImplements": "npx tsc && ts-node ./build/typescriptDocumentsGenerator/generateSwaggerImplement.js"
