@@ -1,6 +1,10 @@
 //Import Jwt
 const jwt = require('jsonwebtoken');
 
+//Import userPayload
+import {userPayload} from "../../types";
+
+
 //Fonction createToken, permet de créer un token jwt
 //Function createToken, allows to create a jwt token
 export default function createToken (userPayLoad: userPayload): string {

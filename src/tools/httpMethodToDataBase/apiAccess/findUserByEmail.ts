@@ -1,8 +1,8 @@
 //Import AppDataSource
 import {AppDataSource} from "../../../data-source.config";
+import {User} from "../../../entity/user.entity";
 
 //Import entity
-import {User} from "../../../entity/user.entity";
 
 //Fonction findUserByEmail, permet de trouver un utilisateur par son email
 //Function findUserByEmail, allows to find a user by his email

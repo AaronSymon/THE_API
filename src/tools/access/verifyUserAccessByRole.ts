@@ -1,6 +1,7 @@
 import e, { Request, Response } from 'express';
 import isObjectNotEmpty from "../object/isObjectNotEmpty";
 import arrayIncludedInOtherArray from "../arrays/arrayIncludedInOtherArray";
+import {entityAccess} from "../../types";
 
 export default function verifyUserAccessByRole(req: Request, res: Response,next: Function, entityAccesses: Set<entityAccess>): e.Response<any, Record<string, any>> | void{
 

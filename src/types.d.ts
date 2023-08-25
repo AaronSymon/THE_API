@@ -1,15 +1,16 @@
-type entityCache = {
+export type entityCache = {
     entity: Function,
     isEntityCached: boolean
 }
 
-type entityAccess = {
+export type entityAccess = {
         userRole: string,
         accessMethods: Set<string>,
         getAccessParams: Array<string>
+        getAccessRelations: Array<string>
 }
 
-type userPayload = {
+export type userPayload = {
     id: number,
     email: string,
     role: string,
@@ -17,53 +18,56 @@ type userPayload = {
     ipAdress: string
 }
 
-type personalizedController = {
+export type personalizedController = {
     controllerName: string,
     controllerParams: {paramName: string, paramType: string, paramRegex: string,}[],
     controller: Function
 }
 
-type TheObject = {
+export type TheObject = {
     entity: Entity,
     cache?: EntityCache
-    access?: EntityAccess,
+    access?: EntityAccess[],
 }
 
-type Entity = {
+export type Entity = {
     entityName: string,
-    columns: Column[],
-    relations: Relation[],
-    dtoExcludedColumns: string[],
+    columns?: Column[],
+    relations?: Relation[],
+    dtoExcludedColumns?: Column["name"][] ,
+    dtoExcludedRelations?: Relation["name"][],
 }
 
-type EntityCache = {
+export type EntityCache = {
     isEntityCached: boolean,
 }
 
-type EntityAccess = {
+export type EntityAccess = {
+    userRole: undefined |"User" | "Admin" | "SuperAdmin",
     httpMethods: Set<"GET" | "POST" | "PUT" | "DELETE">,
     getAccessParams?: string[],
     getAccessRelations?: string[],
 }
 
-type Column = {
+
+export type Column = {
     name: string,
     type: "string" | "number" | "Date" | "boolean" | "Blob"
     options: {
-        ColumnOptions : ColumnOptions
+        nullable: boolean,
+        unique?: boolean,
+        columnType: ColumnType,
+        default?: string | number | boolean | Date | null,
     }
 }
 
-type ColumnOptions = {
-    nullable: boolean,
-    unique: boolean,
-    type: ColumnType,
-}
-
-type Relation = {
+export type Relation = {
     name: string,
-    RelationWith: Entity,
     type: "OneToOne" | "OneToMany" | "ManyToOne" | "ManyToMany",
+    relationWith: string,
+    manyToManyOwningSide?: boolean,
+    oneToManyJoinTable?: string,
+    manyToManyJoinTable?: string
 }
 
 //TypeORM Type
@@ -71,4 +75,4 @@ type Relation = {
  type WithLengthColumnType = "character varying" | "varying character" | "char varying" | "nvarchar" | "national varchar" | "character" | "native character" | "varchar" | "char" | "nchar" | "national char" | "varchar2" | "nvarchar2" | "alphanum" | "shorttext" | "raw" | "binary" | "varbinary" | "string";
  type WithWidthColumnType = "tinyint" | "smallint" | "mediumint" | "int" | "bigint";
  type SimpleColumnType = "simple-array" | "simple-json" | "simple-enum" | "int2" | "integer" | "int4" | "int8" | "int64" | "unsigned big int" | "float" | "float4" | "float8" | "float64" | "smallmoney" | "money" | "boolean" | "bool" | "tinyblob" | "tinytext" | "mediumblob" | "mediumtext" | "blob" | "text" | "ntext" | "citext" | "hstore" | "longblob" | "longtext" | "alphanum" | "shorttext" | "bytes" | "bytea" | "long" | "raw" | "long raw" | "bfile" | "clob" | "nclob" | "image" | "timetz" | "timestamptz" | "timestamp with local time zone" | "smalldatetime" | "date" | "interval year to month" | "interval day to second" | "interval" | "year" | "seconddate" | "point" | "line" | "lseg" | "box" | "circle" | "path" | "polygon" | "geography" | "geometry" | "linestring" | "multipoint" | "multilinestring" | "multipolygon" | "geometrycollection" | "st_geometry" | "st_point" | "int4range" | "int8range" | "numrange" | "tsrange" | "tstzrange" | "daterange" | "enum" | "set" | "cidr" | "inet" | "inet4" | "inet6" | "macaddr" | "bit" | "bit varying" | "varbit" | "tsvector" | "tsquery" | "uuid" | "xml" | "json" | "jsonb" | "varbinary" | "hierarchyid" | "sql_variant" | "rowid" | "urowid" | "uniqueidentifier" | "rowversion" | "array" | "cube" | "ltree";
- type ColumnType = WithPrecisionColumnType | WithLengthColumnType | WithWidthColumnType | SimpleColumnType
+ export type ColumnType = WithPrecisionColumnType | WithLengthColumnType | WithWidthColumnType | SimpleColumnType

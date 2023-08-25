@@ -139,6 +139,8 @@ src/router/*.router.ts
 src/router/personalizedController/*.personalizedController.ts
 src/tools/swagger/swaggerImplement/*.swaggerImplement.ts
 swagger.ts
+swagger-output.json
+01Test
 
 #migrations
 src/migrations

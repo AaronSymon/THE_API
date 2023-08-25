@@ -118,7 +118,7 @@ api_accessRouter.post('/signup', async (req: Request, res: Response) => {
 
         //Retourner une erreur
         //Return an error
-        //console.log(e);
+        console.log(e);
         return res.status(500).json({message: 'Internal Server Error while creating account'});
     }
 

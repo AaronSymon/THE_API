@@ -1,8 +1,12 @@
 //Import Express
 import e, { Request, Response } from 'express';
 
-//Impoort Jwt
+//Import Jwt
 const jwt = require('jsonwebtoken');
+
+//Import UserPayload
+import {userPayload} from "../../types";
+
 
 // Import Dotenv
 import * as process from 'process';

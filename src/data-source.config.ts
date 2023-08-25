@@ -19,7 +19,7 @@ export const AppDataSource = new DataSource({
     logging: false,
     poolSize: Number(process.env.DB_POOL_SIZE),
     entityPrefix: `${process.env.DB_PREFIX}_`,
-    entities: ['build/src/entity/*.entity.js'],
+    entities: ['build/src/entity/*.entity.js', "src/entity/*.entity.ts"],
     migrations: ['build/src/migrations/*.js'],
     subscribers: [],
 })

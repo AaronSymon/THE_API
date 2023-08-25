@@ -9,9 +9,11 @@ export default function mountRouter () {
     //Get the path of the router folder
     const directoryPath : string = path.join(__dirname, `../../router`);
 
+    console.log(directoryPath)
+
     //Récupérer tous les fichiers router.js
     //Get all router.js files
-    const routers: string[] = glob.sync(`${directoryPath}/**/*.router.js`)
+    const routers: string[] = glob.sync(`${directoryPath}/**/*.router.ts`)
 
     //Créer un tableau qui contiendra tous les fichiers router.js
     //Create an array that will contain all router.js files
