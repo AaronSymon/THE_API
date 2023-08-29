@@ -4,7 +4,6 @@ import * as dotenv from 'dotenv';
 
 dotenv.config()
 
-
 import { DataSource } from "typeorm"
 
 export const AppDataSource = new DataSource({
@@ -19,7 +18,7 @@ export const AppDataSource = new DataSource({
     logging: false,
     poolSize: Number(process.env.DB_POOL_SIZE),
     entityPrefix: `${process.env.DB_PREFIX}_`,
-    entities: ['build/src/entity/*.entity.js', "src/entity/*.entity.ts"],
+    entities: ["build/src/entity/*.entity.js"],
     migrations: ['build/src/migrations/*.js'],
     subscribers: [],
 })

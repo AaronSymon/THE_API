@@ -22,10 +22,13 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
     const app = express()
     
     //Import entity ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}
-    import  ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}  from '../../../entity/${entityName}.entity';
+    import  {${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}}  from '../../../entity/${entityName}.entity';
     
     //Import entityDto ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto
     import { ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto } from '../../../dto/${entityName}.dto';
+    
+    //Import Access
+    import {${entityName}Access} from "../../../access/${entityName}.access";
     
     //Import HttpMethodsToDatabase
     import getOne from "../../httpMethodToDataBase/getOne";

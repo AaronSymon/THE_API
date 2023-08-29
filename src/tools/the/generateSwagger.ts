@@ -155,13 +155,13 @@ export default function generateSwagger (theObjects: TheObject[]){
     
     }
     
-    //const outputFile : string = 'build/swagger-output.json';
-    const outputFile : string = './swagger-output.json';
-    //const endpointsFiles : string[] = ['build/src/index.js', 'build/src/tools/swagger/swaggerImplement/**/*.swaggerImplement.js'];
-    const endpointsFiles : string[] = ['./src/index.ts', './src/tools/swagger/swaggerImplement/**/*.swaggerImplement.ts'];
+    const outputFile : string = 'build/swagger-output.json';
+    //const outputFile : string = './swagger-output.json';
+    const endpointsFiles : string[] = ['build/src/index.js', 'build/src/tools/swagger/swaggerImplement/**/*.swaggerImplement.js'];
+    //const endpointsFiles : string[] = ['./src/index.ts', './src/tools/swagger/swaggerImplement/**/*.swaggerImplement.ts'];
     
     swaggerAutogen(outputFile, endpointsFiles, doc).then(async() => {
-        await import ('./src/index'); // Your project's root file
+        await import ('./build/src/index'); // Your project's root file
     });
     
     `

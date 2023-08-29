@@ -117,4 +117,3 @@ app.listen(process.env.SV_PORT, () => {
     console.log(`${process.env.APP_NAME}, using express is listening on port http://${process.env.SV_HOSTNAME}:${process.env.SV_PORT}/`)
     console.log(`Swagger documentation is available on http://${process.env.SV_HOSTNAME}:${process.env.SV_PORT}/api`)
 })
-

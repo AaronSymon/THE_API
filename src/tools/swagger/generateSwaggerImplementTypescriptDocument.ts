@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs'
 import {getEntityPropertiesName} from "../entities/getEntityPropertyNames";
 import researchEntityPersonnalizedControllers from "../router/personalizedController/researchEntityPersonnalizedControllers";
+import { personalizedController } from '../../types';
 
 //Fonction generateSwaggerImplementTypescriptDocument, permet de générer le document swagger pour une entité donnée
 //Fucntion generateSwaggerImplementTypescriptDocument, used to generate swagger document for a given entity

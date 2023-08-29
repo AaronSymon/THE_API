@@ -43,8 +43,8 @@
     "typescript": "5.1.6"
   },
   "scripts": {
-    "start": "ts-node ./src/index.ts",
-    "start:swagger": "ts-node ./swagger.ts",
+    "start": "ts-node ./build/src/index.js",
+    "start:swagger": "npx tsx && ts-node ./swagger.ts",
     "dev": "concurrently \"tsc --watch\" \"nodemon\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "typeorm": "typeorm-ts-node-commonjs",
@@ -59,6 +59,6 @@
     "generate:routers": "npx tsc && ts-node build/typescriptDocumentsGenerator/generateEntitiesRouterTypescriptDocuments.js",
     "generate:swagger": "npx tsc && ts-node build/typescriptDocumentsGenerator/generateSwagger.js",
     "generate:swaggerImplements": "npx tsc && ts-node ./build/typescriptDocumentsGenerator/generateSwaggerImplement.js",
-    "generate:theApi" : "ts-node ./src/tools/the/generateTheApi.ts"
+    "generate:theApi" : "ts-node ./src/tools/the/generateTheApi.ts && npx tsc"
   }
 }

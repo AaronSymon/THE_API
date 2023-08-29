@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import {getEntityPropertiesName} from "../entities/getEntityPropertyNames";
 import researchEntityPersonnalizedControllers from "./personalizedController/researchEntityPersonnalizedControllers";
+import { personalizedController } from '../../types';
 
 //Fonction generateRouterControllerTypescriptDocument, permettant de générer le document typescript du router d'une entité
 //Function generateRouterControllerTypescriptDocument, used to generate the typescript document of an entity router
