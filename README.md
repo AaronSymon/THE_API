@@ -1,3 +1,5 @@
+Outdated, new version of readme.md coming soon
+
 # THE_API
 An experimental project to simplify the creation of RESTful APIs by using Node.js, Express.js, Typescript, TypeORM and Mysql.
 

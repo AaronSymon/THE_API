@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as glob from 'glob';
 import {getFunctionParams} from "../../functions/getFunctionParams";
 import {AppDataSource} from "../../../data-source.config";
+import {personalizedController} from "../../../types";
 
 //Fonction researchEntityPersonnalizedControllers qui permet de rechercher les controllers personnalisés d'une entité
 //Function researchEntityPersonnalizedControllers that allows to search the personalized controllers of an entity
