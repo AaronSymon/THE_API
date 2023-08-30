@@ -32,7 +32,7 @@ but it is not recommanded to delete it
 1. Clone the repository
 2. Run `npm install` to install all the dependencies
 3. Create your entity_name.the.ts files in the `src/theObject` folder
-4. Create your database and configure the [.env](#env-file)
+4. Create your database and configure the [.env](#env-file) file
 5. Run `npm run generate:theApi` to generate all the files required to configure and manage your API
 6. Run `npm run migration:generate` and `npm run migration:run` to create the tables in the database
 7. Run `npm run start:swagger` to generate the server and generate the swagger documentation / Run `npm start` to start the server without generate swagger documentation if it was already generated
@@ -40,7 +40,11 @@ but it is not recommanded to delete it
 ## About
 
 ### .env file
-In the code below, a `.env` file example. Place it to the root of the project. Use it to configure the database connection and you're app
+Place it to the root of the project. Use it to configure the database connection and you're app
+
+<details>
+<summary>.env file exemple</summary>
+
 ```
 #App data
 APP_NAME: 'Name of your project'
@@ -82,19 +86,22 @@ TL_TIMER: 7200000
 
 ```
 
-### theObject and the files
+</details>
 
-**One \*.the.ts file = one const \*: theObject** <br>
+### TheObject and the files
 
-#### theObject
+**One entity_name.the.ts file = one const entity_name: TheObject** <br>
 
-The `theObject` is an object that contains all the properties required to configure and manage the API in one place. <br>
+#### TheObject
+
+The `TheObject` is an object that contains all the properties required to configure and manage the API in one place. <br>
 By defining it, you can manage your entites and their properties, the dtos, the access for each user role and the caches. <br>
 
-```
-//Explanaition of theObject properties
+<details>
+<summary>Explanation of theObject</summary>
 
-theObject = {
+```
+type theObject = {
 
     entity: { //Data of your entity and its Dto
         entityName: string, //Name of your entity, correspond to the name of the table in the database
@@ -110,14 +117,14 @@ theObject = {
                 },
             },
         ],
-        relations?: [
+        relations?: [ //Relations of your entity, correspond to the relations of the table in the database
             {
                 name: string, //Name of the relation
                 type: "OneToOne" | "OneToMany" | "ManyToOne" | "ManyToMany", //Type of the relation
                 relationWith: string, //Name of the entity with which the relation is made,
                 manyToManyOwningSide?: boolean, //Is the relation is a manyToMany relation and the entity is the owning side
-                oneToManyJoinTable?: string, //Name of the join table column if the relation is a manyToOne relation
-                manyToManyJoinTable?: string //Name of the join table column if the relation is a manyToMany relation
+                oneToManyJoinTable?: string, //Required for ManyToOne relations. Name of the join table column if the relation is a manyToOne relation
+                manyToManyJoinTable?: string //Required for ManyToMany relations. Name of the join table column if the relation is a manyToMany relation
             },
         ],
         dtoExcludedColumns?: string[], //Columns of the entity that you don't want to include in the dto
@@ -138,32 +145,768 @@ theObject = {
 }
 
 ```
+</details>
 
+<details>
+<summary>Exemple user.the.ts file</summary>
 
+```
+import {TheObject} from "../types";
 
+export const user: TheObject = {
+    entity: {
+        entityName: "user",
+        columns: [
+            {
+                name: "role",
+                type: "string",
+                options: {
+                    nullable: false,
+                    unique: false,
+                    columnType: "varchar",
+                    default: "User"
+                }
+            },
+            {
+                name: "email",
+                type: "string",
+                options: {
+                    nullable: false,
+                    unique: true,
+                    columnType: "varchar"
+                }
+            },
+            {
+                name: "password",
+                type: "string",
+                options: {
+                    nullable: false,
+                    unique: false,
+                    columnType: "varchar"
+                }
+            },
+            {
+                name: "nom",
+                type: "string",
+                options: {
+                    nullable: false,
+                    unique: false,
+                    columnType: "varchar"
+                }
+            },
+            {
+                name: "prenom",
+                type: "string",
+                options: {
+                    nullable: false,
+                    unique: false,
+                    columnType: "varchar"
+                }
+            }
+        ],
+        relations: [
+            {
+                name: "profile",
+                type: "OneToOne",
+                relationWith: "profile"
+            },
+            {
+                name: "photos",
+                type: "OneToMany",
+                relationWith: "photo"
+            },
+        ],
+        dtoExcludedColumns: ["role", "password"],
+        dtoExcludedRelations: []
+    },
+    cache: {
+        isEntityCached: false,
+    },
+    access: [
+        {
+            userRole: "User",
+            httpMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
+            getAccessParams: ["id"],
+            getAccessRelations: ["profile", "photos"]
+        },
+        {
+            userRole: "Admin",
+            httpMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
+            getAccessParams: ["id"],
+            getAccessRelations: ["profile", "photos"]
+        },
+        {
+            userRole: "SuperAdmin",
+            httpMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
+            getAccessParams: ["id"],
+            getAccessRelations: ["profile", "photos"]
+        }
+    ]
+}
+```
+</details>
+
+By using the `theObject`, running `npm run generate:theApi`, for each `entity_name.the.ts` file that you define, you generate all the files required to configure and manage your API.
+
+The files generated are:
+1. [entity_name.entity.ts](#entities)
+2. [entity_name.cache.ts](#caches)
+3. [entity_name.access.ts](#access)
+4. [entity_name.dto.ts](#dtos)
+5. [entity_name.router.ts](#routers)
+6. [entity_name.swaggerImplement.ts](#swagger-implementation)
+7. [swagger.ts](#swagger)
 
 ### Entities
 
+the entities are the `entity_name.entity.ts` files <br>
+An `entity_name.entity.ts` code define a new [TypeORM entity](https://typeorm.io/#/entities). it is a class that maps to a database table. <br>
+
+When a new `entity_name.entity.ts` file is generated, this one is saved at `./src/entity`folder and the `entity_name` defined in this file have by de
+default, 3 columns that you don't need to define inside your `entity_name.the.ts` : <br>
+
+1. `id` : a primary key column that is an auto-increment number
+2. `createdAt` : a column that is a date and time of the creation of the entity
+3. `updatedAt` : a column that is a date and time of the last update of the entity
+
+<details>
+<summary>Exemple user.entity.ts generated using theObject </summary>
+
+```
+import {PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Entity, Column, OneToOne,OneToMany, JoinColumn,  } from "typeorm";
+import {Profile} from "./profile.entity";
+import {Photo} from "./photo.entity";
+
+@Entity()
+export class User {
+
+    @PrimaryGeneratedColumn({type: "int"})
+    id : number;
+
+    @CreateDateColumn({type: "datetime"})
+    createdAt: Date;
+
+    @UpdateDateColumn({type: "datetime"})
+    updatedAt: Date;
+
+    @Column({nullable: false, unique: false, type: "varchar", default: "User",})
+    role: string
+
+    @Column({nullable: false, unique: true, type: "varchar", })
+    email: string
+
+    @Column({nullable: false, unique: false, type: "varchar", })
+    password: string
+
+    @Column({nullable: false, unique: false, type: "varchar", })
+    nom: string
+
+    @Column({nullable: false, unique: false, type: "varchar", })
+    prenom: string
+
+    @OneToOne(() => Profile, (profile) => profile.user   )
+    @JoinColumn()
+    profile: Profile
+
+    @OneToMany( () => Photo, (photo) => photo.user  )
+
+    photos: Photo []
+
+}
+```
+
+</details>
+
 ### Caches
+
+The caches are the `entity_name.cache.ts` files <br>
+An `entity_name.cache.ts` code define a new `entityCache` object that is used to store the data of the entity in cache. <br>
+
+An `entityCache` object is composed of 2 properties : <br>
+
+1. `entity` : the entity defined in the `entity_name.entity.ts` file
+2. `isEntityCached` : a boolean that define if the entity have to be cached or not
+
+When a new `entity_name.cache.ts` file is generated, this one is saved at `./src/cache`folder
+
+<details>
+<summary>Exemple user.cache.ts generated using theObject </summary>
+
+```
+import {User} from '../entity/user.entity';
+import {entityCache} from "../types";
+
+export const userCache : entityCache = {
+
+    entity : User,
+    isEntityCached : false
+
+}
+    
+```
+</details>
 
 ### Access
 
+The access are the `entity_name.access.ts` files <br>
+An `entity_name.access.ts` code define a new Set of `entityAccess` object that is used to define the access of the different user roles to the différent HTTP methods from
+`entity_name.router.ts` for its `entity_name`. <br>
+
+An `entityAccess` object is composed of 4 properties : <br>
+1. userRole : the user role for which the access is defined. It can be undefined, "User", "Admin" or "SuperAdmin".  If it is undefined, it's define the access for user that are not logged 
+2. httpMethods : a Set of the HTTP methods allowed for the user role. It can include "GET", "POST", "PUT" or "DELETE"
+3. getAccessParams : an array of the params allowed for the GET method for the user role. By defining a params in the array, a controller will be generated to get the entity by this params
+4. getAccessRelations : an array of the relations allowed for the GET method for the user role. By defining a relation in the array, a controller will be generated to get the entity by this relation
+
+When a new `entity_name.access.ts` file is generated, this one is saved at `./src/access`folder
+
+<details>
+<summary>Exemple user.access.ts generated using theObject </summary>
+
+```
+import {entityAccess} from "../types";
+export const userAccess : Set<entityAccess> = new Set([
+
+    {
+        userRole: "User",
+        accessMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
+        getAccessParams: ["id"],
+        getAccessRelations: ["profile", "photos"]
+    },
+    {
+        userRole: "Admin",
+        accessMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
+        getAccessParams: ["id"],
+        getAccessRelations: ["profile", "photos"]
+    },
+    {
+        userRole: "SuperAdmin",
+        accessMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
+        getAccessParams: ["id"],
+        getAccessRelations: ["profile", "photos"]
+    }
+
+])
+    
+```
+</details>
+
 ### DTOs
+
+The DTOs are the `entity_name.dto.ts` files <br>
+An `entity_name.dto.ts` code define a new `entityDto` object that is used to define the dto of the entity. <br>
+
+An `entity_nameDto` is a class that is used to define the data that will be sent to the client when a request is made to the API. <br>
+
+When a new `entity_name.dto.ts` file is generated, this one is saved at `./src/dto`folder
+
+<details>
+<summary>Exemple user.dto.ts generated using theObject </summary>
+
+```
+import {User} from "../entity/user.entity";
+import {ProfileDto} from "./profile.dto";
+import {PhotoDto} from "./photo.dto";
+
+export class UserDto {
+
+    readonly id: number;
+    readonly email: string;
+    readonly nom: string;
+    readonly prenom: string;
+    readonly profile: ProfileDto
+    readonly photos: PhotoDto []
+
+    constructor(user: User){
+        this.id = user.id;
+        this.email = user.email;
+        this.nom = user.nom;
+        this.prenom = user.prenom;
+        user.profile ? this.profile = new ProfileDto(user.profile) : this.profile = undefined
+        user.photos ? this.photos = user.photos.map(photo => new PhotoDto(photo)) : this.photos = undefined;
+
+    }
+
+}
+```
+</details>
 
 ### Routers
 
+The routers are the `entity_name.router.ts` files <br>
+An `entity_name.router.ts` code define a new `entity_nameRouter` using `Express.js` <br>
+
+By default, the `entity_nameRouter` have 5 routes: <br>
+1.`GET /entity_name`: Get all instances of the entity <br>
+2.`GET /entity_name/:id(\\d+)`: Get one instance of the entity by its id. (//d+) is a regex that defines that the id must be a number <br>
+3.`POST /entity_name`: Create a new instance of the entity <br>
+4.`PUT /entity_name/:id(\\d+)`: Update one instance of the entity by its id. (//d+) is a regex that defines that the id must be a number <br>
+5.`DELETE /entity_name/:id(\\d+)`: Delete one instance of the entity by its id. (//d+) is a regex that defines that the id must be a number <br>
+
+but you can add more routes by defining them in the `entity_name.the.ts` file at `TheObject` properties `getAccessParams` and `getAccessRelations`. <br>
+
+When a new `entity_name.router.ts` file is generated, this one is saved at `./src/router`folder
+
+<details>
+<summary>Exemple user.router.ts generated using theObject </summary>
+
+```
+//Import Express
+const express = require('express');
+import { Request, Response } from 'express';
+
+//Import entity User
+import  {User}  from '../entity/user.entity';
+
+//Import entityDto UserDto
+import { UserDto } from '../dto/user.dto';
+
+//Import entityAccess UserAccess
+import {userAccess} from "../access/user.access";
+
+//Import HttpMethodsToDatabase
+import getOne from "../../src/tools/httpMethodToDataBase/getOne";
+import getAll from "../../src/tools/httpMethodToDataBase/getAll";
+import insert from "../../src/tools/httpMethodToDataBase/insert";
+import update from "../../src/tools/httpMethodToDataBase/update";
+import deleteOne from "../../src/tools/httpMethodToDataBase/deleteOne";
+
+//Import Middleware
+import verifyToken from "../../src/tools/jwt/verifyToken";
+import {verifyUserAccessMiddleware} from "../tools/access/verifyUserAccessByRole";
+
+//Import Cache
+import * as cache from 'memory-cache';
+import {userCache} from "../cache/user.cache";
+import createCache from "../../src/tools/caches/createCache";
+import deleteCache from "../../src/tools/caches/deleteCache";
+import searchCache from "../../src/tools/caches/searchCache";
+
+//Declare Router for User
+export const UserRouter = express.Router();
+
+//Get Method to get all User from database
+UserRouter.get('/', verifyToken, verifyUserAccessMiddleware(userAccess), async (req: Request, res: Response) => {
+
+    try {
+
+        //Check if User have to be cached
+        switch (userCache.isEntityCached) {
+
+            //If User have to be cached
+            case true:
+
+                //Check if User is already cached
+                let isCachedExisting : boolean = searchCache(req);
+
+                //If User is already cached
+                if(isCachedExisting) {
+
+                    //Get User from cache
+                    return res.status(200).json(cache.get(req.url));
+
+                }
+
+                //If User isn't already cached, cache it
+                // @ts-ignore
+                return createCache(req, res, await getAll <User, UserDto>(User, UserDto));
+
+            //If User haven't to be cached
+            case false:
+
+                //Get User from database
+                // @ts-ignore
+                return res.status(200).json(await getAll <User, UserDto>(User, UserDto));
+
+        }
+
+        //If an error occurred, send a 500 error message
+    } catch (error) {
+
+        //console.log(error);
+        return res.status(500).json({message: 'An error occurred while trying to get all User'});
+
+    }
+
+});
+
+//Get Method to get one User from database
+UserRouter.get('/:id(\\d+)', verifyToken, verifyUserAccessMiddleware(userAccess), async (req: Request, res: Response) => {
+
+    try {
+
+        //Check if User have to be cached
+        switch (userCache.isEntityCached) {
+
+            //If User have to be cached
+            case true:
+
+                //Check if User is already cached
+                let isCachedExisting : boolean = searchCache(req);
+
+                //If User is already cached
+                if(isCachedExisting) {
+
+                    //Get User from cache
+                    return res.status(200).json(cache.get(req.url));
+
+                }
+
+                //If User isn't already cached, cache it
+                // @ts-ignore
+                return createCache(req, res, await getOne <User, UserDto>(User, Number(req.params.id), UserDto));
+
+            //If User haven't to be cached
+            case false:
+
+                //Get User from database
+                // @ts-ignore
+                return res.status(200).json(await getOne <User, UserDto>(User, Number(req.params.id), UserDto));
+
+        }
+
+        //If an error occurred, send a 500 error message
+    } catch (error) {
+
+        //console.log(error);
+        return res.status(500).json({message: 'An error occurred while trying to get one User by id ${req.params.id}'});
+
+    }
+
+});
+
+//Post Method to insert one User in database 
+UserRouter.post('/', verifyToken, verifyUserAccessMiddleware(userAccess), async (req: Request, res: Response) => {
+
+    try {
+
+        //Create an instance of User
+        let userToInsert: User = new User();
+
+        //Hydrate User with request body
+
+        userToInsert.email = req.body.email;
+        userToInsert.password = req.body.password;
+        userToInsert.nom = req.body.nom;
+        userToInsert.prenom = req.body.prenom;
+        userToInsert.profile = req.body.profile;
+        userToInsert.photos = req.body.photos;
+
+        //Check if User have to be cached
+        switch (userCache.isEntityCached) {
+
+            //If User have to be cached
+            case true:
+
+                //Check if User is already cached
+                let isCachedExisting : boolean = searchCache(req);
+
+                //If User is already cached
+                if(isCachedExisting) {
+
+                    //Delete User from cache and insert it in database
+                    await deleteCache(req, res, await insert (User, userToInsert));
+
+                    return res.status(201).json({message: 'Instance of User created successfully.'})
+
+                }
+
+                //If User isn't already cached, insert it in database
+                await insert (User, userToInsert);
+
+                return res.status(201).json({message: 'Instance of User created successfully.'})
+
+            //If User haven't to be cached
+            case false:
+
+                //Insert User in database
+                await insert (User, userToInsert);
+
+                return res.status(201).json({message: 'Instance of User created successfully.'})
+
+        }
+
+        //If an error occurred, send a 500 error message
+    } catch (error) {
+
+        //console.log(error);
+        return res.status(500).json({message: 'An error occurred while trying to insert one User'});
+
+    }
+
+});
+
+//Put Method to update one User in database
+UserRouter.put('/:id(\\d+)', verifyToken, verifyUserAccessMiddleware(userAccess), async (req: Request, res: Response) => {
+
+    try {
+
+        let updated;
+
+        //Create an instance of User
+        let userToUpdate: User = new User();
+
+        //Hydrate User with request body
+
+        userToUpdate.email = req.body.email;
+        userToUpdate.password = req.body.password;
+        userToUpdate.nom = req.body.nom;
+        userToUpdate.prenom = req.body.prenom;
+        userToUpdate.profile = req.body.profile;
+        userToUpdate.photos = req.body.photos;
+
+        //Check if User have to be cached
+        switch (userCache.isEntityCached) {
+
+            //If User have to be cached
+            case true:
+
+                //Check if User is already cached
+                let isCachedExisting : boolean = searchCache(req);
+
+                //If User is already cached
+                if(isCachedExisting) {
+
+                    //Delete User from cache and update it in database
+                    // @ts-ignore
+                    return await deleteCache(req, res, await update <User, UserDto>(User, Number(req.params.id), userToUpdate, UserDto));
+                }
+
+                //If User isn't already cached, update it in database
+                // @ts-ignore
+                updated = await update <User, UserDto>(User, Number(req.params.id), userToUpdate, UserDto);
+
+                //Send a 200 status code and the updated User
+                return res.status(200).json(updated);
+
+            //If User haven't to be cached
+            case false:
+
+                //Update User in database    
+                // @ts-ignore
+                updated = await update <User, UserDto>(User, Number(req.params.id), userToUpdate, UserDto);
+
+                //Send a 200 status code and the updated User
+                return res.status(200).json(updated);
+
+        }
+
+        //If an error occurred, send a 500 error message
+    } catch (error) {
+
+        //console.log(error);
+        return res.status(500).json({message: 'An error occurred while trying to update one User by id ${req.params.id}'});
+
+    }
+
+});
+
+//Delete Method to delete one User in database
+UserRouter.delete('/:id(\\d+)', verifyToken, verifyUserAccessMiddleware(userAccess), async (req: Request, res: Response) => {
+
+    try {
+
+        let deleted;
+
+        //Check if User have to be cached
+        switch (userCache.isEntityCached) {
+
+            //If User have to be cached
+            case true:
+
+                //Check if User is already cached
+                let isCachedExisting : boolean = searchCache(req);
+
+                //If User is already cached
+                if(isCachedExisting) {
+
+                    //Delete User from cache and delete it in database
+                    // @ts-ignore
+                    return await deleteCache(req, res, await deleteOne <User>(User, Number(req.params.id)));
+
+                }
+
+                //If User isn't already cached, delete it in database
+                // @ts-ignore
+                deleted = await deleteOne <User>(User, Number(req.params.id));
+
+                //Send a 200 status code and the deleted User
+                return res.status(200).json(deleted);
+
+            //If User haven't to be cached
+            case false:
+
+                //Delete User in database
+                // @ts-ignore
+                deleted = await deleteOne <User>(User, Number(req.params.id));
+
+                //Send a 200 status code and the deleted User
+                return res.status(200).json(deleted);
+
+        }
+
+        //If an error occurred, send a 500 error message
+    } catch (error) {
+
+        //console.log(error);
+        return res.status(500).json({message: 'An error occurred while trying to delete one User by id ${req.params.id}'});
+
+    }
+
+});
+```
+</details>
+
 ### Documentation
+
+The documentation section refers to swagger
 
 #### Swagger
 
+Swagger, now known as OpenAPI, is an open-source set of tools and specifications for designing, documenting, and consuming APIs. <Br>
+The swagger documentation is generated using [swagger-jsdoc](https://www.npmjs.com/package/swagger-jsdoc) and [swagger-ui-express](https://www.npmjs.com/package/swagger-ui-express) <Br>
+
+While generating all the files required to configure and manage your API, a `swagger.ts` file is generated at `./` folder. <Br>
+This file contains some information about your API and the data of your entities, DTOs. This file is used to generate the swagger documentation
+
+When you run `npm run start:swagger`, the swagger documentation (`swagger-output.json`) file is generated at `./build` folder. <Br>
+This file is used to generate the swagger documentation at ["http://localhost:3000/api/"](http://localhost:3000/api). You can use it to test your API <Br>
+
+<details>
+<summary>Exemple swagger.ts generated</summary>
+
+```
+const swaggerAutogen = require('swagger-autogen')({openapi: '3.0.0'});
+    
+    const doc: object = {
+    
+        info: {
+            version: '0.0.1',
+            title : 'THE_API',
+            description : 'The API Project'
+        },
+        host : 'localhost:3000',
+        basePath : '/',
+        schemes: ['http'],
+    securityDefinitions: {
+    apiKeyAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization',
+        description: "Type into the textbox: Bearer {your JWT token}." //JWT token is generated from the login route.
+        }
+    },
+    consumes: ['application/json'],
+    produces: ['application/json'],
+    tags: [
+    
+        //User Tag
+        {
+            'name' : 'User',
+            'description' : 'User Endpoint'
+        },
+    
+    ],
+    definitions: {
+        
+        //User Definition
+        
+        
+        User: {
+        
+            email : "varchar",
+            password : "varchar",
+            nom : "varchar",
+            prenom : "varchar",
+            profile : {
+                gender : "varchar",
+                photo : "varchar",
+            },
+            photos : [
+                {
+                    url : "varchar",
+                },
+            ],
+                                   
+        },
+        
+        //UserDto Definition
+        
+        UserDto: {
+        
+            email : "varchar",
+            nom : "varchar",
+            prenom : "varchar",
+            profile : {
+                gender : "varchar",
+                photo : "varchar",
+            },
+            photos : [
+                {
+                    url : "varchar",
+                },
+            ],
+                               
+        },
+ 
+    },
+    
+}
+    
+const outputFile : string = 'build/swagger-output.json';
+//const outputFile : string = './swagger-output.json';
+const endpointsFiles : string[] = ['build/src/index.js', 'build/src/tools/swagger/swaggerImplement/**/*.swaggerImplement.js'];
+//const endpointsFiles : string[] = ['./src/index.ts', './src/tools/swagger/swaggerImplement/**/*.swaggerImplement.ts'];
+
+swaggerAutogen(outputFile, endpointsFiles, doc).then(async() => {
+    await import ('./build/src/index'); // Your project's root file
+});
+```
+</details>
+
 #### Swagger implementation
+
+The swagger implementation are the `entity_name.swaggerImplement.ts` files <br>
+
+An `entity_name.swaggerImplement.ts` is a schema of the `entity_nameRouter` that is used to generate the swagger documentation. <br>
+
+When a new `entity_name.swaggerImplement.ts` file is generated, this one is saved at `./src/tools/swagger/swaggerImplement`folder 
+
+After having run `npm run start:swagger`, the swagger implementation files are deleted.
+You can regenerate them by running `npm run generate:theApi`
 
 ### Migrations
 
+Migrations are the files generated by `TypeORM`, that are used to create the tables in the database. <br>
+
+After having defined your `entity_name.the.ts` files, and running `npm run generate:theApi`: <br>
+1. When you run `npm run migration:generate`, the migration file is generated at `./src/migration` folder. <br>
+2. When you run `npm run migration:run`, the tables are created in the database. <br>
+3. When you run `npm run migration:revert`, the tables are deleted from the database. <br>
+
 ### Logs
+
+Logs are the files generated by `winston`, that are used to log the errors and the requests made to the API. <br>
+
+After running `npm run start:swagger` or `npm start`, the logs files are generated at `./logs` folder. <br>
 
 ### Securities
 
 #### Tokens
 
+If userRole is defined in the `entity_name.the.ts` file, the API use tokens to secure the routes. <br>
+The tokens are generated using [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) <br>
+You can define the secret keys and the timers of the tokens in the [.env](#env-file) file <br>
+The tokens are generated when a user login to the API, sent to the client as cookies and are used to secure the routes. <br>
+
+The cookie sent to the client contains the following data : <br>
+1. `userId` : the id of the user
+2. `userEmail` : the email of the user
+3. `userRole` : the role of the user
+4. `userAgent` : HTTP user agent header sent by the user. It is used to identify the device and the browser of the user. If this header is not sent or différent from the userAgent when a new request is sent to the server, the user is not allowed to access the API
+5. `userIp` : the IP address of the user. It is used to identify the device of the user. If this IP address is not the same when a new request is sent to the server, the user is not allowed to access the API
+
 #### Passwords
+
+Passwords are hashed using [bcrypt](https://www.npmjs.com/package/bcrypt) <br>
+Password have to be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character <br>
