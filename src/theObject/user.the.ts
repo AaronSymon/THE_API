@@ -73,7 +73,7 @@ export const user: TheObject = {
         {
             userRole: "User",
             httpMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
-            getAccessParams: ["id"],
+            getAccessParams: ["id", "email"],
             getAccessRelations: ["profile", "photos"]
         },
         {

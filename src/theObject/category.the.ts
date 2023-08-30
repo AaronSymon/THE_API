@@ -31,17 +31,17 @@ export const category: TheObject = {
         {
             userRole: "User",
             httpMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
-            getAccessParams: ["id"],
+            getAccessParams: ["id", "name"],
         },
         {
             userRole: "Admin",
             httpMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
-            getAccessParams: ["id"],
+            getAccessParams: ["id", "name"],
         },
         {
             userRole: "SuperAdmin",
             httpMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
-            getAccessParams: ["id"],
+            getAccessParams: ["id", "name"],
         }
     ],
 }

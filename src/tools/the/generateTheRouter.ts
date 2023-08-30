@@ -5,6 +5,19 @@ export default function generateTheRouter (theObject: TheObject): void {
 
     const entity = theObject.entity;
     const entityName = entity.entityName;
+    let accessParams : string[] = [];
+
+    if(theObject.access) {
+        theObject.access.forEach(access => {
+
+            if (access.getAccessParams) {
+                access.getAccessParams.forEach(accessParam => {
+                    accessParam !== "id" && ! accessParams.includes(accessParam) ? accessParams.push(accessParam) : undefined;
+                })
+            }
+
+        })
+    }
 
     const directoryPath = path.join(__dirname, '../../router');
 
@@ -33,6 +46,7 @@ export default function generateTheRouter (theObject: TheObject): void {
     import insert from "../../src/tools/httpMethodToDataBase/insert";
     import update from "../../src/tools/httpMethodToDataBase/update";
     import deleteOne from "../../src/tools/httpMethodToDataBase/deleteOne";
+    ${accessParams.length > 0 ? `import getByAccessParam from "../tools/httpMethodToDataBase/getByAccessParam";`: undefined}
     
     //Import Middleware
     import verifyToken from "../../src/tools/jwt/verifyToken";
@@ -137,6 +151,64 @@ export default function generateTheRouter (theObject: TheObject): void {
         }
     
     });
+    
+    ${accessParams.length > 0 ? accessParams.map(accessParam => {
+        
+        const accessParamType = entity.columns && entity.columns.length > 0 ? entity.columns.find(column => column.name === accessParam)?.type : undefined;
+        let accessParamRegex : string | undefined = undefined;
+        
+        switch (accessParamType) {
+            case "string":
+                accessParamRegex = "\\\\w+";
+                break;
+            case "number":
+                accessParamRegex = "\\\\d+";
+                break;
+        }
+            
+        return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} from database
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : undefined}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
+        
+            try {
+            
+                //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                switch (${entityName}Cache.isEntityCached) {
+                
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                    case true:
+                    
+                        //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        let isCachedExisting : boolean = searchCache(req);
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        if(isCachedExisting) {
+                        
+                            //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache
+                            return res.status(200).json(cache.get(req.url));
+                        
+                        }
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} isn't already cached, cache it
+                        // @ts-ignore
+                        return createCache(req, res, await getByAccessParam <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, "${accessParam}", req.params.${accessParam}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                    
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} haven't to be cached
+                    case false:
+                    
+                        //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from database
+                        // @ts-ignore
+                        return res.status(200).json(await getByAccessParam <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, "${accessParam}", req.params.${accessParam}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                
+                }
+            
+            } catch (error) {
+                //console.log(error);
+                return res.status(500).json({message: 'An error occurred while trying to get one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} \${req.params.${accessParam}}'});
+            }
+        });
+    `
+    }).join(`
+    `) : undefined}
     
     //Post Method to insert one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database 
     ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.post('/', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
