@@ -12,7 +12,7 @@ export default async function update<Entity, DTO>(
     entityId: number,
     updateData: Partial<Entity>,
     entityDtoConstructor: new (entity: Entity) => DTO
-): Promise<DTO | { message: string }> {
+): Promise<DTO[]| DTO | {message: string}> {
         try {
                 // @ts-ignore
                 const entityRepository = AppDataSource.getRepository(entity);
@@ -26,7 +26,6 @@ export default async function update<Entity, DTO>(
                 Object.assign(existingEntity, updateData);
                 const updatedEntity = await entityRepository.save(existingEntity);
 
-                // @ts-ignore
                 return mapEntityToDTO(updatedEntity, entityDtoConstructor);
         } catch (error) {
                 // @ts-ignore

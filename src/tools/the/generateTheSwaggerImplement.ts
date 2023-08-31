@@ -6,6 +6,7 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
     const entity = theObject.entity;
     const entityName = entity.entityName;
     let accessParams : string[] = [];
+    let accessRelations: string [] = []
 
     if(theObject.access) {
         theObject.access.forEach(access => {
@@ -13,6 +14,18 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
             if (access.getAccessParams) {
                 access.getAccessParams.forEach(accessParam => {
                     accessParam !== "id" && ! accessParams.includes(accessParam) ? accessParams.push(accessParam) : undefined;
+                })
+            }
+
+        })
+    }
+
+    if(theObject.access) {
+        theObject.access.forEach(access => {
+
+            if (access.getAccessRelations) {
+                access.getAccessRelations.forEach(accessRelation => {
+                    ! accessRelations.includes(accessRelation) ? accessRelations.push(accessRelation) : undefined;
                 })
             }
 
@@ -50,6 +63,7 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
     import update from "../../httpMethodToDataBase/update";
     import deleteOne from "../../httpMethodToDataBase/deleteOne";
     ${accessParams.length > 0 ? `import getByAccessParam from "../../httpMethodToDataBase/getByAccessParam";` : undefined}
+    ${accessRelations.length > 0 ? `import getEntityAndAccessRelation from "../../httpMethodToDataBase/getEntityAndAccessRelation";` : undefined}
     
     //Import Middleware
     import verifyToken from "../../jwt/verifyToken";
@@ -219,7 +233,7 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
         }
 
         return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} from database
-        app.get('/${entityName}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : undefined}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
+        app.get('/${entityName}/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : undefined}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
         
             /*
             #swagger.tags= ['${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}']
@@ -286,6 +300,76 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
     `
     }).join(`
     `) : undefined}
+    
+    ${accessRelations.length > 0 ? accessRelations.map(accessRelation => {
+
+        return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation} from database
+        app.get('/${entityName}/${accessRelation}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
+        
+            /*
+            #swagger.tags= ['${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}']
+            #swagger.description = "${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} endPoint to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation}"
+            #swagger.security = [{
+                "apiKeyAuth": []
+            }]
+            #swagger.responses[200] = {
+                schema: {$ref: '#/definitions/${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto'},
+                description: "Array of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation}"
+            }
+            #swagger.responses[401] = {
+            schema: {message: "Token is required. Access denied."},
+            description: "Error: unauthorized",
+            }
+            #swagger.responses[403] = {
+            schema: {message: 'Invalid token. Access denied. || Access denied.'},
+            description: "Error: Forbidden",
+            }   
+            #swagger.responses[500] = {
+                schema: {message: "An error occurred while trying to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation}"},
+                description: "Error: Internal Server Error"
+            }
+            */  
+        
+            try {
+            
+                //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                switch (${entityName}Cache.isEntityCached) {
+                
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                    case true:
+                    
+                        //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        let isCachedExisting : boolean = searchCache(req);
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        if(isCachedExisting) {
+                            //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache
+                                return res.status(200).json(cache.get(req.url));
+                        }
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} isn't already cached, cache it
+                        // @ts-ignore
+                        return createCache(req, res, await getEntityAndAccessRelation <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, "${accessRelation}", ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                        
+                    
+                    //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} haven't to be cached
+                    case false:
+                    
+                        //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation} from database
+                        // @ts-ignore
+                        return res.status(200).json(await getEntityAndAccessRelation <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${accessRelation.charAt(0).toUpperCase()}${accessRelation.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, "${accessRelation}", ${accessRelation.charAt(0).toUpperCase()}${accessRelation.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                
+                }
+            
+            } catch (error) {
+                //console.log(error);
+                return res.status(500).json({message: 'An error occurred while trying to get one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation}'});
+            }
+        });
+        `
+
+    }).join(`
+    `): undefined}
     
     //Post Method to insert one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database 
     app.post('/${entityName}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {

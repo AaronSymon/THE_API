@@ -28,6 +28,7 @@ export const profile: TheObject = {
                 relationWith: "user",
             }
         ],
+        dtoExcludedColumns: ["gender"]
     },
     cache: {
         isEntityCached: false,

@@ -8,7 +8,7 @@ export default async function getOne<Entity, DTO>(
     entity: Entity,
     entityId: number,
     entityDtoConstructor: new (entity: Entity) => DTO
-): Promise<DTO | { message: string }> {
+): Promise<DTO[]| DTO | {message: string}> {
     try {
         // @ts-ignore
         const entityRepository = AppDataSource.getRepository(entity);
@@ -19,7 +19,6 @@ export default async function getOne<Entity, DTO>(
             return { message: `${entity.name} with ID ${entityId} not found` };
         }
 
-        // @ts-ignore
         return mapEntityToDTO(entityInstance, entityDtoConstructor);
     } catch (error) {
         // @ts-ignore

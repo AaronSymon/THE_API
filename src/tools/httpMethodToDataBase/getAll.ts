@@ -7,7 +7,7 @@ import {mapEntityToDTO} from "../dtos/mapEntityToDto";
 export default async function getAll<Entity, DTO>(
     entity: Entity,
     entityDtoConstructor: new (entity: Entity) => DTO
-): Promise<DTO[]| {message: string}> {
+): Promise<DTO[]| DTO | {message: string}> {
     try {
         // @ts-ignore
         const entityRepository = AppDataSource.getRepository(entity);
@@ -17,7 +17,6 @@ export default async function getAll<Entity, DTO>(
             return [];
         }
 
-        // @ts-ignore
         return mapEntityToDTO(all, entityDtoConstructor);
     } catch (error) {
         // @ts-ignore

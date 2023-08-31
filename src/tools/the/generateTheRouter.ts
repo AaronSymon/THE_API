@@ -6,6 +6,7 @@ export default function generateTheRouter (theObject: TheObject): void {
     const entity = theObject.entity;
     const entityName = entity.entityName;
     let accessParams : string[] = [];
+    let accessRelations: string [] = []
 
     if(theObject.access) {
         theObject.access.forEach(access => {
@@ -13,6 +14,18 @@ export default function generateTheRouter (theObject: TheObject): void {
             if (access.getAccessParams) {
                 access.getAccessParams.forEach(accessParam => {
                     accessParam !== "id" && ! accessParams.includes(accessParam) ? accessParams.push(accessParam) : undefined;
+                })
+            }
+
+        })
+    }
+
+    if(theObject.access) {
+        theObject.access.forEach(access => {
+
+            if (access.getAccessRelations) {
+                access.getAccessRelations.forEach(accessRelation => {
+                    ! accessRelations.includes(accessRelation) ? accessRelations.push(accessRelation) : undefined;
                 })
             }
 
@@ -47,6 +60,7 @@ export default function generateTheRouter (theObject: TheObject): void {
     import update from "../../src/tools/httpMethodToDataBase/update";
     import deleteOne from "../../src/tools/httpMethodToDataBase/deleteOne";
     ${accessParams.length > 0 ? `import getByAccessParam from "../tools/httpMethodToDataBase/getByAccessParam";`: undefined}
+    ${accessRelations.length > 0 ? `import getEntityAndAccessRelation from "../tools/httpMethodToDataBase/getEntityAndAccessRelation";`: undefined}
     
     //Import Middleware
     import verifyToken from "../../src/tools/jwt/verifyToken";
@@ -167,7 +181,7 @@ export default function generateTheRouter (theObject: TheObject): void {
         }
             
         return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} from database
-        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : undefined}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : undefined}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
         
             try {
             
@@ -183,8 +197,8 @@ export default function generateTheRouter (theObject: TheObject): void {
                         //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
                         if(isCachedExisting) {
                         
-                            //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache
-                            return res.status(200).json(cache.get(req.url));
+                                //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache
+                                return res.status(200).json(cache.get(req.url));
                         
                         }
                         
@@ -209,6 +223,52 @@ export default function generateTheRouter (theObject: TheObject): void {
     `
     }).join(`
     `) : undefined}
+    
+    ${accessRelations.length > 0 ? accessRelations.map(accessRelation => {
+        
+        return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation} from database
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/${accessRelation}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
+        
+            try {
+            
+                //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                switch (${entityName}Cache.isEntityCached) {
+                
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                    case true:
+                    
+                        //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        let isCachedExisting : boolean = searchCache(req);
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        if(isCachedExisting) {
+                            //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache
+                                return res.status(200).json(cache.get(req.url));
+                        }
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} isn't already cached, cache it
+                        // @ts-ignore
+                        return createCache(req, res, await getEntityAndAccessRelation <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, "${accessRelation}", ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                        
+                    
+                    //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} haven't to be cached
+                    case false:
+                    
+                        //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation} from database
+                        // @ts-ignore
+                        return res.status(200).json(await getEntityAndAccessRelation <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, "${accessRelation}", ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                
+                }
+            
+            } catch (error) {
+                //console.log(error);
+                return res.status(500).json({message: 'An error occurred while trying to get one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation}'});
+            }
+        });
+        `
+        
+    }).join(`
+    `): undefined}
     
     //Post Method to insert one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database 
     ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.post('/', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {

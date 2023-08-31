@@ -6,7 +6,7 @@ export default async function getByAccessParam<Entity, DTO>(
     accessParamName: string,
     accessParamValue: string,
     entityDtoConstructor: new (entity: Entity) => DTO
-): Promise<DTO | { message: string }> {
+): Promise<DTO[]| DTO | {message: string}> {
 
     try {
         // @ts-ignore
@@ -16,10 +16,9 @@ export default async function getByAccessParam<Entity, DTO>(
 
         if (!entityInstance) {
             // @ts-ignore
-            return { message: `${entity.name} with param ${accessParamName} ${accessParamValue}` };
+            return { message: `${entity.name} with param ${accessParamName} ${accessParamValue} not found` };
         }
 
-        // @ts-ignore
         return mapEntityToDTO(entityInstance, entityDtoConstructor);
 
     } catch (error) {
