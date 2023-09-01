@@ -13,7 +13,7 @@ export default function generateTheRouter (theObject: TheObject): void {
 
             if (access.getAccessParams) {
                 access.getAccessParams.forEach(accessParam => {
-                    accessParam !== "id" && ! accessParams.includes(accessParam) ? accessParams.push(accessParam) : undefined;
+                    accessParam !== "id" && ! accessParams.includes(accessParam) ? accessParams.push(accessParam) : ``;
                 })
             }
 
@@ -25,11 +25,349 @@ export default function generateTheRouter (theObject: TheObject): void {
 
             if (access.getAccessRelations) {
                 access.getAccessRelations.forEach(accessRelation => {
-                    ! accessRelations.includes(accessRelation) ? accessRelations.push(accessRelation) : undefined;
+                    ! accessRelations.includes(accessRelation) ? accessRelations.push(accessRelation) : ``;
                 })
             }
 
         })
+    }
+
+    let controllerWithoutAccessVerification : boolean | string = theObject.access.some(access => access.userRole === undefined);
+
+    if (controllerWithoutAccessVerification) {
+        const access = theObject.access.find(access => access.userRole === undefined);
+        const httpMethods = Array.from(access.httpMethods);
+        const getAccessParams = access.getAccessParams ? access.getAccessParams : [];
+        const getAccessRelations = access.getAccessRelations ? access.getAccessRelations : [];
+
+        controllerWithoutAccessVerification = `
+        
+        ${ httpMethods.includes("GET") ? `//Get Method to get all ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from database without access verification
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/no_auth/', async (req: Request, res: Response) => {
+        
+            try {
+            
+                //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                switch (${entityName}Cache.isEntityCached) {
+            
+                //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                case true:
+                
+                    //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                    let isCachedExisting : boolean = searchCache(req);
+                    
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                    if(isCachedExisting) {
+                   
+                       //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache
+                       return res.status(200).json(cache.get(req.url));
+                   
+                    }
+                    
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} isn't already cached, cache it
+                    // @ts-ignore
+                    return createCache(req, res, await getAll <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                
+                //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} haven't to be cached
+                case false:
+                
+                    //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from database
+                    // @ts-ignore
+                    return res.status(200).json(await getAll <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+            
+            }
+        
+            //If an error occurred, send a 500 error message 
+            } catch (error) {
+            
+                //console.log(error);
+                return res.status(500).json({message: 'An error occurred while trying to get all ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}'});
+            
+            }
+        
+        });
+        ` : ``}
+        ${httpMethods.includes("GET") && getAccessParams.length > 0 ? getAccessParams.map(accessParam => {
+
+                    const accessParamType = entity.columns && entity.columns.length > 0 ? entity.columns.find(column => column.name === accessParam)?.type : ``;
+                    let accessParamRegex : string | undefined = undefined;
+        
+                    switch (accessParamType) {
+                        case "string":
+                            accessParamRegex = "\\\\w+";
+                            break;
+                        case "number":
+                            accessParamRegex = "\\\\d+";
+                            break;
+                    }
+                    
+                    accessParam === "id" ? accessParamRegex = "\\\\d+" : ``;
+        
+                    return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} from database without access verification
+                ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/no_auth/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : ``}', async (req: Request, res: Response) => {
+                
+                    try {
+                    
+                        //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                        switch (${entityName}Cache.isEntityCached) {
+                        
+                            //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                            case true:
+                            
+                                //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                                let isCachedExisting : boolean = searchCache(req);
+                                
+                                //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                                if(isCachedExisting) {
+                                
+                                        //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache
+                                        return res.status(200).json(cache.get(req.url));
+                                
+                                }
+                                
+                                //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} isn't already cached, cache it
+                                // @ts-ignore
+                                return createCache(req, res, await getByAccessParam <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, "${accessParam}", req.params.${accessParam}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                            
+                            //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} haven't to be cached
+                            case false:
+                            
+                                //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from database
+                                // @ts-ignore
+                                return res.status(200).json(await getByAccessParam <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, "${accessParam}", req.params.${accessParam}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                        
+                        }
+                    
+                    } catch (error) {
+                        //console.log(error);
+                        return res.status(500).json({message: 'An error occurred while trying to get one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} \${req.params.${accessParam}}'});
+                    }
+                });
+            `
+            
+        }).join(`
+        `): ``}
+        
+        ${httpMethods.includes("GET") && getAccessRelations.length > 0 ? getAccessRelations.map(accessRelation => {
+
+            return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation} from database without access verification
+            ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/no_auth/${accessRelation}', async (req: Request, res: Response) => {
+            
+                try {
+                
+                    //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                    switch (${entityName}Cache.isEntityCached) {
+                    
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                        case true:
+                        
+                            //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                            let isCachedExisting : boolean = searchCache(req);
+                            
+                            //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                            if(isCachedExisting) {
+                                //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache
+                                    return res.status(200).json(cache.get(req.url));
+                            }
+                            
+                            //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} isn't already cached, cache it
+                            // @ts-ignore
+                            return createCache(req, res, await getEntityAndAccessRelation <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, "${accessRelation}", ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                            
+                        
+                        //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} haven't to be cached
+                        case false:
+                        
+                            //Get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation} from database
+                            // @ts-ignore
+                            return res.status(200).json(await getEntityAndAccessRelation <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, "${accessRelation}", ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));
+                    
+                    }
+                
+                } catch (error) {
+                    //console.log(error);
+                    return res.status(500).json({message: 'An error occurred while trying to get one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation}'});
+                }
+            });
+            `
+            
+        }).join(`
+        `): ``}
+        
+        ${ httpMethods.includes("POST") ? `//Post Method to insert one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database without access verification
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.post('/no_auth/', async (req: Request, res: Response) => {
+        
+            try {
+            
+                //Create an instance of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}
+                let ${entityName}ToInsert: ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} = new ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}();
+                
+                //Hydrate ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} with request body
+                ${entity.columns && entity.columns.length > 0 ? entity.columns.map(column => !("default" in column.options) ? `${entityName}ToInsert.${column.name} = req.body.${column.name};`: "").join(`
+                `) :""}
+                ${entity.relations && entity.relations.length > 0 ? entity.relations.map(relation => `${entityName}ToInsert.${relation.name} = req.body.${relation.name};`).join(`
+                `) :""}
+                
+                //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                switch (${entityName}Cache.isEntityCached) {
+                
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                    case true:
+                    
+                        //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        let isCachedExisting : boolean = searchCache(req);
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        if(isCachedExisting) {
+                        
+                            //Delete ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache and insert it in database
+                            await deleteCache(req, res, await insert (${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName}ToInsert));
+                            
+                            return res.status(201).json({message: 'Instance of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} created successfully.'})
+                            
+                        }
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} isn't already cached, insert it in database
+                        await insert (${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName}ToInsert);
+                        
+                        return res.status(201).json({message: 'Instance of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} created successfully.'})
+                    
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} haven't to be cached
+                    case false:
+                    
+                    //Insert ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database
+                    await insert (${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName}ToInsert);
+                    
+                    return res.status(201).json({message: 'Instance of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} created successfully.'})
+                
+                }
+            
+            } catch (error) {
+            
+                //console.log(error);
+                return res.status(500).json({message: 'An error occurred while trying to insert one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}'});
+            
+            }
+        
+        });
+        ` : ``}
+        ${ httpMethods.includes("PUT") ? `//Put Method to update one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database without access verification
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.put('/no_auth/:id(\\\\d+)', async (req: Request, res: Response) => {
+        
+            try {
+            
+                let updated;
+            
+                //Create an instance of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}
+                let ${entityName}ToUpdate: ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} = new ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}();
+                
+                //Hydrate ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} with request body
+                ${entity.columns && entity.columns.length > 0 ? entity.columns.map(column => !("default" in column.options) ?`${entityName}ToUpdate.${column.name} = req.body.${column.name};` : "").join(`
+                `) :""}
+                ${entity.relations && entity.relations.length > 0 ? entity.relations.map(relation => `${entityName}ToUpdate.${relation.name} = req.body.${relation.name};`).join(`
+                `) :""}
+                
+                //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                switch (${entityName}Cache.isEntityCached) {
+                
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                    case true:
+                    
+                        //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        let isCachedExisting : boolean = searchCache(req);
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        if(isCachedExisting) {
+                        
+                            //Delete ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache and update it in database
+                            // @ts-ignore
+                            return await deleteCache(req, res, await update <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, Number(req.params.id), ${entityName}ToUpdate, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto));                    
+                        }
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} isn't already cached, update it in database
+                        // @ts-ignore
+                        updated = await update <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, Number(req.params.id), ${entityName}ToUpdate, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto);
+                        
+                        //Send a 200 status code and the updated ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}
+                        return res.status(200).json(updated);
+                    
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} haven't to be cached
+                    case false:
+                    
+                        //Update ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database    
+                        // @ts-ignore
+                        updated = await update <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, Number(req.params.id), ${entityName}ToUpdate, ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto);
+                        
+                        //Send a 200 status code and the updated ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}
+                        return res.status(200).json(updated);
+                
+                }
+            
+            //If an error occurred, send a 500 error message
+            } catch (error) {
+            
+                //console.log(error);
+                return res.status(500).json({message: 'An error occurred while trying to update one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}'});
+            
+            }
+        
+        });
+        ` : ``}
+        ${ httpMethods.includes("DELETE") ? `//Delete Method to delete one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database without access verification
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.delete('/no_auth/:id(\\\\d+)', async (req: Request, res: Response) => {
+        
+            try {
+            
+                let deleted;
+            
+                //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                switch (${entityName}Cache.isEntityCached) {
+                
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
+                    case true:
+                    
+                        //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        let isCachedExisting : boolean = searchCache(req);
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} is already cached
+                        if(isCachedExisting) {
+                        
+                            //Delete ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from cache and delete it in database
+                            // @ts-ignore
+                            return await deleteCache(req, res, await deleteOne <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, Number(req.params.id)));
+                        
+                        }
+                        
+                        //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} isn't already cached, delete it in database
+                        // @ts-ignore
+                        deleted = await deleteOne <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, Number(req.params.id));
+                        
+                        //Send a 200 status code and the deleted ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}
+                        return res.status(200).json(deleted);
+                    
+                    //If ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} haven't to be cached
+                    case false:
+                    
+                        //Delete ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database
+                        // @ts-ignore
+                        deleted = await deleteOne <${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}>(${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}, Number(req.params.id));
+                        
+                        //Send a 200 status code and the deleted ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}
+                        return res.status(200).json(deleted);
+                
+                }
+            
+            //If an error occurred, send a 500 error message
+            } catch (error) {
+            
+                //console.log(error);
+                return res.status(500).json({message: 'An error occurred while trying to delete one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}'});
+            
+            }
+        
+        });
+        ` : ``}
+        `
     }
 
     const directoryPath = path.join(__dirname, '../../router');
@@ -45,7 +383,7 @@ export default function generateTheRouter (theObject: TheObject): void {
     import { Request, Response } from 'express';
     
     //Import entity ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}
-    import  {${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}}  from '../entity/${entityName}.entity';
+    import {${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}} from '../entity/${entityName}.entity';
     
     //Import entityDto ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto
     import { ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto } from '../dto/${entityName}.dto';
@@ -59,8 +397,8 @@ export default function generateTheRouter (theObject: TheObject): void {
     import insert from "../../src/tools/httpMethodToDataBase/insert";
     import update from "../../src/tools/httpMethodToDataBase/update";
     import deleteOne from "../../src/tools/httpMethodToDataBase/deleteOne";
-    ${accessParams.length > 0 ? `import getByAccessParam from "../tools/httpMethodToDataBase/getByAccessParam";`: undefined}
-    ${accessRelations.length > 0 ? `import getEntityAndAccessRelation from "../tools/httpMethodToDataBase/getEntityAndAccessRelation";`: undefined}
+    ${accessParams.length > 0 ? `import getByAccessParam from "../tools/httpMethodToDataBase/getByAccessParam";`: ``}
+    ${accessRelations.length > 0 ? `import getEntityAndAccessRelation from "../tools/httpMethodToDataBase/getEntityAndAccessRelation";`: ``}
     
     //Import Middleware
     import verifyToken from "../../src/tools/jwt/verifyToken";
@@ -168,7 +506,7 @@ export default function generateTheRouter (theObject: TheObject): void {
     
     ${accessParams.length > 0 ? accessParams.map(accessParam => {
         
-        const accessParamType = entity.columns && entity.columns.length > 0 ? entity.columns.find(column => column.name === accessParam)?.type : undefined;
+        const accessParamType = entity.columns && entity.columns.length > 0 ? entity.columns.find(column => column.name === accessParam)?.type : ``;
         let accessParamRegex : string | undefined = undefined;
         
         switch (accessParamType) {
@@ -181,7 +519,7 @@ export default function generateTheRouter (theObject: TheObject): void {
         }
             
         return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} from database
-        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : undefined}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : ``}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
         
             try {
             
@@ -222,7 +560,7 @@ export default function generateTheRouter (theObject: TheObject): void {
         });
     `
     }).join(`
-    `) : undefined}
+    `) : ``}
     
     ${accessRelations.length > 0 ? accessRelations.map(accessRelation => {
         
@@ -268,7 +606,7 @@ export default function generateTheRouter (theObject: TheObject): void {
         `
         
     }).join(`
-    `): undefined}
+    `): ``}
     
     //Post Method to insert one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database 
     ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.post('/', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
@@ -442,7 +780,12 @@ export default function generateTheRouter (theObject: TheObject): void {
         
         }
     
-    });`
+    });
+    
+    ${controllerWithoutAccessVerification ? controllerWithoutAccessVerification : ``}
+    
+
+`
 
     fs.writeFileSync(filePath, fileContent)
     console.log(`Generated ${entityName}.router File`)
