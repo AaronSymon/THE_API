@@ -14,3 +14,5 @@ export function getEntityRelation(Entity: Function): string[] {
     //Get the names of the relations
     return relations.map(relation => relation.propertyName)
 }
+
+//Todo: vérifier si cette fonction garde toujours une utilité actuellement

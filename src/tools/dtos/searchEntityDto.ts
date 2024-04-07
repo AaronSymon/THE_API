@@ -33,3 +33,5 @@ export function searchEntityDto(dtos: Function[] | object[], researchedDto: stri
         //Return the found dto
         return foundDto
 }
+
+//Todo: vérifier si cette fonction garde toujours une utilité actuellement

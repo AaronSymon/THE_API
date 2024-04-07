@@ -38,3 +38,5 @@ export function FindByEmail(email: string){
     console.log(`Generated ${entity.name.toLowerCase()}.personalizedController.ts file successfully`);
 
 }
+
+//Todo: Verifier si la fonction a encore une utilité actuellement

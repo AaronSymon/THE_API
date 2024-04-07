@@ -4,6 +4,13 @@ import {dtosArray} from "../../array/dtos.array";
 import {getEntityDtoValues} from "../dtos/getEntityDtoValue";
 import {mapEntityToDTO} from "../dtos/mapEntityToDto";
 
+/**
+ * Get all instances of an entity
+ * @param entity
+ * @param entityDtoConstructor
+ * @return All instances of the entity
+ * @return An error message
+ */
 export default async function getAll<Entity, DTO>(
     entity: Entity,
     entityDtoConstructor: new (entity: Entity) => DTO

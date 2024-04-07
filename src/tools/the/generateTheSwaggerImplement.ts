@@ -1,6 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { TheObject } from '../../types';
+
+//Fonction pour générer le fichier d'implémentation des routers pour la documentation Swagger
+//Function to generate the router implementation file for Swagger documentation
 export default function generateTheSwaggerImplement(theObject: TheObject) {
 
     const entity = theObject.entity;
@@ -8,11 +11,20 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
     let accessParams : string[] = [];
     let accessRelations: string [] = []
 
+    //Si l'objet theObject a des access
+    //If theObject has access
     if(theObject.access) {
+        //Pour chaque access de theObject
+        //For each access of theObject
         theObject.access.forEach(access => {
-
+            //Si des paramètres sont définis pour la méthode GET
+            //If parameters are defined for the GET method
             if (access.getAccessParams) {
+                //Pour chaque paramètre de la méthode GET
+                //For each parameter of the GET method
                 access.getAccessParams.forEach(accessParam => {
+                    //Si le paramètre n'est pas "id" et n'est pas déjà dans le tableau accessParams, l'on l'ajoute
+                    //If the parameter is not "id" and is not already in the accessParams array, it is added
                     accessParam !== "id" && ! accessParams.includes(accessParam) ? accessParams.push(accessParam) : undefined;
                 })
             }
@@ -20,11 +32,20 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
         })
     }
 
+    //Si l'objet theObject a des access
+    //If theObject has access
     if(theObject.access) {
+        //Pour chaque access de theObject
+        //For each access of theObject
         theObject.access.forEach(access => {
-
+            //Si des relations sont définies pour la méthode GET
+            //If relations are defined for the GET method
             if (access.getAccessRelations) {
+                //Pour chaque relation de la méthode GET
+                //For each relation of the GET method
                 access.getAccessRelations.forEach(accessRelation => {
+                    //Si la relation n'est pas déjà dans le tableau accessRelations, l'on l'ajoute
+                    //If the relation is not already in the accessRelations array, it is added
                     ! accessRelations.includes(accessRelation) ? accessRelations.push(accessRelation) : undefined;
                 })
             }
@@ -32,18 +53,32 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
         })
     }
 
+    //L'on vérifie si l'objet theObject a des access ou l'on ne vérifie pas les accès le type d'utilisateur (userRole === undefined)
+    //We check if theObject has access or we don't check access the user type (userRole === undefined)
     let controllerWithoutAccessVerification : boolean | string = theObject.access.some(access => access.userRole === undefined);
 
+    //Si l'objet theObject a des access ou l'on ne vérifie pas les accès le type d'utilisateur (userRole === undefined)
+    //If theObject has access or we don't check access the user type (userRole === undefined)
     if (controllerWithoutAccessVerification) {
+        //L'on récupère l'access qui ne vérifie pas le type d'utilisateur
+        //We get the access that does not check the user type
         const access = theObject.access.find(access => access.userRole === undefined);
+        //L'on récupère les méthodes HTTP sans verification d'accès
+        //We get the HTTP methods without access verification
         const httpMethods = Array.from(access.httpMethods);
+        //L'on récupère les paramètres d'accès qui sont autorisés sans vérification
+        //We get the access parameters that are allowed without verification
         const getAccessParams = access.getAccessParams ? access.getAccessParams : [];
+        //L'on récupère les relations d'accès qui sont autorisées sans vérification
+        //We get the access relations that are allowed without verification
         const getAccessRelations = access.getAccessRelations ? access.getAccessRelations : [];
 
+        //L'on génère le controller sans vérification d'accès
+        //We generate the controller without access verification
         controllerWithoutAccessVerification = `
         
         ${httpMethods.includes("GET") ? `//Get Method to get all ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from database without access verification
-        app.get('/${entityName}/no_auth/', async (req: Request, res: Response) => {
+        app.get('/${entityName}/public/', async (req: Request, res: Response) => {
         
             /*
             #swagger.tags= ['${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}']
@@ -119,7 +154,7 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
             accessParam === "id" ? accessParamRegex = "\\\\d+" : undefined;
 
             return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} from database without access verification
-                app.get('/${entityName}/no_auth/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : ``}', async (req: Request, res: Response) => {
+                app.get('/${entityName}/public/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : ``}', async (req: Request, res: Response) => {
                 
                     /*
                     #swagger.tags= ['${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}']
@@ -180,7 +215,7 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
         ${httpMethods.includes("GET") && getAccessRelations.length > 0 ? getAccessRelations.map(accessRelation => {
 
             return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation} from database without access verification
-            app.get('/${entityName}/no_auth/${accessRelation}', async (req: Request, res: Response) => {
+            app.get('/${entityName}/public/${accessRelation}', async (req: Request, res: Response) => {
             
             
                 /*
@@ -238,7 +273,7 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
         `): ``}
         
         ${ httpMethods.includes("POST") ? `//Post Method to insert one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database without access verification
-        app.post('/${entityName}/no_auth/', async (req: Request, res: Response) => {
+        app.post('/${entityName}/public/', async (req: Request, res: Response) => {
         
                 /*
                     #swagger.tags= ['${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}']
@@ -316,7 +351,7 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
         });
         ` : ``}
         ${ httpMethods.includes("PUT") ? `//Put Method to update one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database without access verification
-        app.put('/${entityName}/no_auth/:id(\\\\d+)', async (req: Request, res: Response) => {
+        app.put('/${entityName}/public/:id(\\\\d+)', async (req: Request, res: Response) => {
         
             /*
                 #swagger.tags= ['${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}']
@@ -396,7 +431,7 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
         });
         ` : ``}
         ${ httpMethods.includes("DELETE") ? `//Delete Method to delete one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database without access verification
-        app.delete('/${entityName}/no_auth/:id(\\\\d+)', async (req: Request, res: Response) => {
+        app.delete('/${entityName}/public/:id(\\\\d+)', async (req: Request, res: Response) => {
         
             /*
                 #swagger.tags= ['${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}']
@@ -1070,8 +1105,9 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
     
     `
 
+    //Ecrire le fichier
+    //Write the file
+    fs.writeFileSync(filePath, fileContent);
+    console.log(`Generated ${entityName}.swaggerImplement File`);
 
-    fs.writeFileSync(filePath, fileContent)
-    console.log(`Generated ${entityName}.swaggerImplement File`)
-
-}
+};

@@ -4,6 +4,8 @@ import {searchEntityDto} from "../dtos/searchEntityDto";
 import {getEntityDtoValues} from "../dtos/getEntityDtoValue";
 import {mapEntityToDTO} from "../dtos/mapEntityToDto";
 
+//Fonction getOne, permet de récupérer une entité par son id
+//getOne function, allows to retrieve an entity by its id
 export default async function getOne<Entity, DTO>(
     entity: Entity,
     entityId: number,
@@ -24,7 +26,7 @@ export default async function getOne<Entity, DTO>(
         // @ts-ignore
         return { message: `An error occurred while trying to get ${entity.name} with ID ${entityId}` };
     }
-}
+};
 
 //Fonction getOne, permet de récupérer une entité par son id
 //getOne function, allows to retrieve an entity by its id

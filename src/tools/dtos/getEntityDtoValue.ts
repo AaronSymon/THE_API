@@ -13,7 +13,7 @@ export function getEntityDtoValues(entity: Function, entityDto: Function, entity
 
     //Attribuer à chacun des paramètres la valeur de l'entité à renvoyer
     //Assign to each of the parameters the value of the entity to be returned
-    const paramValues = paramNames.map( paramName => entityResults[paramName])
+    const paramValues :string[] = paramNames.map( paramName => entityResults[paramName])
 
     // @ts-ignore
     //Déclarer une nouvelle instance du DTO de l'entité et lui passer les valeurs à retourner
@@ -247,9 +247,10 @@ export function getEntityDtoValues(entity: Function, entityDto: Function, entity
             }
         })
     }
-
     //Retourner le DTO de l'entité
     //Return the DTO of the entity
-    return dtoValues
+    return dtoValues;
 
 }
+
+//Todo: vérifier si cette fonction garde toujours une utilité actuellement

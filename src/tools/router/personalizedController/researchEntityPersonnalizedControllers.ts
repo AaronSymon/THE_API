@@ -154,3 +154,5 @@ const date: Set<string> = new Set<string>([
     'time',
     'timestamp'
 ])
+
+//Todo: vérifier si cette fonction garde toujours une utilité actuellement

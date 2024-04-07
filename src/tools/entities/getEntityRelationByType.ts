@@ -28,3 +28,5 @@ export function getEntityRelationByType(Entity: Function, relationType : 'one-to
     return typedRelations;
 
 }
+
+//Todo: vérifier si cette fonction garde toujours une utilité actuellement car il semblerait qu'elle soit utilisé uniquement dans getEntityDtoValue, mais il faut aussi vérifier si getEntityDtoValue est toujours utilisé

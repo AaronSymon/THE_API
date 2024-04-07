@@ -50,3 +50,5 @@ export default async function sendDtoResultFromPersonalizedController(personaliz
     }
 
 }
+
+//Todo : Vérifier si la fonction à encore une utilité actuellement

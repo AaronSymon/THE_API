@@ -25,24 +25,24 @@ export type personalizedController = {
 }
 
 export type TheObject = {
-    entity: Entity,
-    cache?: EntityCache
-    access?: EntityAccess[],
+    entity: TheEntity,
+    cache?: TheEntityCache
+    access?: TheEntityAccess[],
 }
 
-export type Entity = {
+export type TheEntity = {
     entityName: string,
-    columns?: Column[],
-    relations?: Relation[],
-    dtoExcludedColumns?: Column["name"][] ,
-    dtoExcludedRelations?: Relation["name"][],
+    columns?: TheColumn[],
+    relations?: TheRelation[],
+    dtoExcludedColumns?: TheColumn["name"][] ,
+    dtoExcludedRelations?: TheRelation["name"][],
 }
 
-export type EntityCache = {
+export type TheEntityCache = {
     isEntityCached: boolean,
 }
 
-export type EntityAccess = {
+export type TheEntityAccess = {
     userRole: undefined |"User" | "Admin" | "SuperAdmin",
     httpMethods: Set<"GET" | "POST" | "PUT" | "DELETE">,
     getAccessParams?: string[],
@@ -50,7 +50,7 @@ export type EntityAccess = {
 }
 
 
-export type Column = {
+export type TheColumn = {
     name: string,
     type: "string" | "number" | "Date" | "boolean" | "Blob"
     options: {
@@ -61,7 +61,7 @@ export type Column = {
     }
 }
 
-export type Relation = {
+export type TheRelation = {
     name: string,
     type: "OneToOne" | "OneToMany" | "ManyToOne" | "ManyToMany",
     relationWith: string,

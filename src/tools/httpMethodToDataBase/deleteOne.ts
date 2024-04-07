@@ -5,6 +5,13 @@ import {searchDto} from "../dtos/searchDto";
 import {dtosArray} from "../../array/dtos.array";
 import {getEntityDtoValues} from "../dtos/getEntityDtoValue";
 
+/**
+ * Delete an entity in the database.
+ * @param entity - The entity to delete.
+ * @param entityId - The ID of the entity to delete.
+ * @return A message to confirm the deletion.
+ * @return An error message.
+ */
 export default async function deleteOne<Entity>(
     entity: Entity,
     entityId: number

@@ -45,3 +45,5 @@ export function getDtoPropertyNames(entity: Function) {
 
     return properties;
 }
+
+//Todo: vérifier si cette fonction garde toujours une utilité actuellement

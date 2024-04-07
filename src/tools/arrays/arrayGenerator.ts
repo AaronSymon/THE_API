@@ -14,7 +14,6 @@ export function arrayGenerator(type : string) : Function[] {
     //Definition of directoryPath, which corresponds to the path of the folder containing the files to be imported
     const directoryPath = path.join(__dirname, `../../${type}`);
 
-
     // Tableau qui contiendra les classes exportées
     // Array that will contain the exported classes
     let generatedArray: Function[] = [];

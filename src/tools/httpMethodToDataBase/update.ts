@@ -7,10 +7,21 @@ import {dtosArray} from "../../array/dtos.array";
 import {getEntityDtoValues} from "../dtos/getEntityDtoValue";
 import {mapEntityToDTO} from "../dtos/mapEntityToDto";
 
+/**
+ * Update an entity in the database.
+ * @param entity The entity to be updated.
+ * @param entityId The ID of the entity to be updated.
+ * @param updatedData The updated data to be applied to the entity.
+ * @param entityDtoConstructor The DTO class to create an instance of.
+ * @returns An array of DTOs populated with data from the updated entities.
+ * @returns A DTO populated with data from the updated entity.
+ * @returns An error message.
+ *
+ */
 export default async function update<Entity, DTO>(
     entity: Entity,
     entityId: number,
-    updateData: Partial<Entity>,
+    updatedData: Partial<Entity>,
     entityDtoConstructor: new (entity: Entity) => DTO
 ): Promise<DTO[]| DTO | {message: string}> {
         try {
@@ -23,7 +34,7 @@ export default async function update<Entity, DTO>(
                         return { message: `${entity.name} with ID ${entityId} not found` };
                 }
 
-                Object.assign(existingEntity, updateData);
+                Object.assign(existingEntity, updatedData);
                 const updatedEntity = await entityRepository.save(existingEntity);
 
                 return mapEntityToDTO(updatedEntity, entityDtoConstructor);

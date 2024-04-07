@@ -2,17 +2,24 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as process from 'process';
 import * as dotenv from 'dotenv';
-import {Column, TheObject} from "../../types";
+import {TheColumn, TheObject} from "../../types";
 
-dotenv.config()
+dotenv.config();
 
+//Fonction pour générer le fichier swagger.ts
+//Function to generate the swagger.ts file
 export default function generateSwagger (theObjects: TheObject[]){
 
+    //Déclaration du chemin du répertoire
+    //Declare the directory path
     const directoryPath = path.join(__dirname, '../../../');
 
-
+    //Déclaration du chemin du fichier swagger.ts
+    //Declare the swagger.ts file path
     const filePath = path.join(directoryPath, `swagger.ts`);
 
+    //Déclaration du contenu du fichier swagger.ts
+    //Declare the content of the swagger.ts file
     let fileContent = `const swaggerAutogen = require('swagger-autogen')({openapi: '3.0.0'});
     
     const doc: object = {
@@ -65,7 +72,7 @@ export default function generateSwagger (theObjects: TheObject[]){
                 let theObjectRelation = require((`../../theObject/${relationTable}.the`))
                 theObjectRelation = theObjectRelation[relationTable]
                 
-                const theObjectRelationColumns: Column[] = theObjectRelation["entity"]["columns"]
+                const theObjectRelationColumns: TheColumn[] = theObjectRelation["entity"]["columns"]
     
                 relationColumns = `{
                 ${theObjectRelationColumns.map(column =>!("default" in column.options) ? `${column.name} : "${column.options.columnType}",` : "").join(`
@@ -79,7 +86,7 @@ export default function generateSwagger (theObjects: TheObject[]){
                 let theObjectRelation = require((`../../theObject/${relationTable}.the`))
                 theObjectRelation = theObjectRelation[relationTable]
     
-                const theObjectRelationColumns: Column[] = theObjectRelation["entity"]["columns"]
+                const theObjectRelationColumns: TheColumn[] = theObjectRelation["entity"]["columns"]
     
                 relationColumns = `[
                     {
@@ -115,7 +122,7 @@ export default function generateSwagger (theObjects: TheObject[]){
             let theObjectRelation = require((`../../theObject/${relationTable}.the`))
             theObjectRelation = theObjectRelation[relationTable]
 
-            const theObjectRelationColumns: Column[] = theObjectRelation["entity"]["columns"]
+            const theObjectRelationColumns: TheColumn[] = theObjectRelation["entity"]["columns"]
 
             relationColumns = `{
                 ${theObjectRelationColumns.map(column =>!("default" in column.options) && !(theObjectRelation.entity.dtoExcludedColumns && theObjectRelation.entity.dtoExcludedColumns.includes(column.name)) ? `${column.name} : "${column.options.columnType}",` : "").join(`
@@ -123,13 +130,13 @@ export default function generateSwagger (theObjects: TheObject[]){
                     }`
 
         }
-
+        
         if (relationType === "OneToMany" || relationType === "ManyToMany" && !(theObject.entity.dtoExcludedColumns && theObject.entity.dtoExcludedColumns.includes(relation.name))) {
 
             let theObjectRelation = require((`../../theObject/${relationTable}.the`))
             theObjectRelation = theObjectRelation[relationTable]
 
-            const theObjectRelationColumns: Column[] = theObjectRelation["entity"]["columns"]
+            const theObjectRelationColumns: TheColumn[] = theObjectRelation["entity"]["columns"]
 
             relationColumns = `[
                     {
@@ -166,7 +173,7 @@ export default function generateSwagger (theObjects: TheObject[]){
     
     `
 
-    fs.writeFileSync(filePath, fileContent)
-    console.log(`Generated swagger File`)
+    fs.writeFileSync(filePath, fileContent);
+    console.log(`Generated swagger File`);
 
-}
+};

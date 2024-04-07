@@ -7,14 +7,20 @@ export default function generateTheAccess (theObject: TheObject): void {
     const entityName = entity.entityName;
     const accesses = theObject.access;
 
+    //Créer le dossier access s'il n'existe pas
+    //Create the access folder if it doesn't exist
     const directoryPath = path.join(__dirname, '../../access');
 
     if (!fs.existsSync(directoryPath)) {
         fs.mkdirSync(directoryPath);
     }
 
+    //Ecrire le fichier .access
+    //Write the .access file
     const filePath = path.join(directoryPath, `${entityName}.access.ts`);
 
+    //Ecrire le contenu du fichier
+    //Write the file content
     let fileContent = `import {entityAccess} from "../types";
     export const ${entityName}Access : Set<entityAccess> = new Set([
     
@@ -27,9 +33,11 @@ export default function generateTheAccess (theObject: TheObject): void {
     `) : ""}
     
     ])
-    `
+    `;
 
-    fs.writeFileSync(filePath, fileContent)
-    console.log(`Generated ${entityName}.access File`)
+    //Ecrire le fichier
+    //Write the file
+    fs.writeFileSync(filePath, fileContent);
+    console.log(`Generated ${entityName}.access File`);
 
-}
+};

@@ -32,6 +32,7 @@ export const category: TheObject = {
             userRole: undefined,
             httpMethods: new Set(["GET", "POST", "PUT", "DELETE"]),
             getAccessParams: ["id", "name"],
+            getAccessRelations: ["questions"]
         },
         {
             userRole: "User",

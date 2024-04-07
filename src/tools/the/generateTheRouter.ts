@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { TheObject } from '../../types';
+//Fonction pour générer les fichiers router
 export default function generateTheRouter (theObject: TheObject): void {
 
     const entity = theObject.entity;
@@ -8,11 +9,22 @@ export default function generateTheRouter (theObject: TheObject): void {
     let accessParams : string[] = [];
     let accessRelations: string [] = []
 
+    //Si des accès sont définis pour l'entité
+    //If accesses are defined for the entity
     if(theObject.access) {
+        //Pour chacun des accès
+        //For each access
         theObject.access.forEach(access => {
-
+            //Si des paramètres d'accès sont définis
+            //If access parameters are defined
             if (access.getAccessParams) {
+                //Pour chacun des paramètres d'accès
+                //For each access parameter
                 access.getAccessParams.forEach(accessParam => {
+                    //Si le paramètre d'accès n'est pas déjà dans le tableau des paramètres d'accès et que ce n'est pas l'id
+                    //If the access parameter is not already in the access parameters array and it's not the id
+                    //Ajouter le paramètre d'accès au tableau des paramètres d'accès (accessParams)
+                    //Add the access parameter to the access parameters array (accessParams)
                     accessParam !== "id" && ! accessParams.includes(accessParam) ? accessParams.push(accessParam) : ``;
                 })
             }
@@ -20,11 +32,19 @@ export default function generateTheRouter (theObject: TheObject): void {
         })
     }
 
+    //Si des accès sont définis pour l'entité
+    //If accesses are defined for the entity
     if(theObject.access) {
+        //Pour chacun des accès
+        //For each access
         theObject.access.forEach(access => {
-
+            //Si des relations d'accès sont définies
+            //If access relations are defined
             if (access.getAccessRelations) {
+                //Pour chacune des relations d'accès
                 access.getAccessRelations.forEach(accessRelation => {
+                    //Si la relation d'accès n'est pas déjà dans le tableau des relations d'accès (accessRelations), l'on l'ajoute
+                    //If the access relation is not already in the access relations array (accessRelations), we add it
                     ! accessRelations.includes(accessRelation) ? accessRelations.push(accessRelation) : ``;
                 })
             }
@@ -32,18 +52,32 @@ export default function generateTheRouter (theObject: TheObject): void {
         })
     }
 
+    //Vérifier si le contrôleur dispose d'une méthode sans vérification d'accès (userRole === undefined)
+    //Check if the controller has a method without access verification (userRole === undefined)
     let controllerWithoutAccessVerification : boolean | string = theObject.access.some(access => access.userRole === undefined);
 
+    //Si le contrôleur dispose d'une méthode sans vérification d'accès
+    //If the controller has a method without access verification
     if (controllerWithoutAccessVerification) {
+        //Récupérer l'accès sans vérification d'accès parmis les différents types d'accès déclarés
+        //Get the access without access verification among the different types of access declared
         const access = theObject.access.find(access => access.userRole === undefined);
+        //Récupérer les méthodes HTTP déclarées pour l'accès sans vérification d'accès
+        //Get the HTTP methods declared for the access without access verification
         const httpMethods = Array.from(access.httpMethods);
+        //Récupérer les paramètres d'accès pour l'accès sans vérification d'accès
+        //Get the access parameters for the access without access verification
         const getAccessParams = access.getAccessParams ? access.getAccessParams : [];
+        //Récupérer les relations d'accès pour l'accès sans vérification d'accès
+        //Get the access relations for the access without access verification
         const getAccessRelations = access.getAccessRelations ? access.getAccessRelations : [];
 
+        //Générer le contrôleur sans vérification d'accès
+        //Generate the controller without access verification
         controllerWithoutAccessVerification = `
         
         ${ httpMethods.includes("GET") ? `//Get Method to get all ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} from database without access verification
-        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/no_auth/', async (req: Request, res: Response) => {
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/public/', async (req: Request, res: Response) => {
         
             try {
             
@@ -104,7 +138,7 @@ export default function generateTheRouter (theObject: TheObject): void {
                     accessParam === "id" ? accessParamRegex = "\\\\d+" : ``;
         
                     return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} from database without access verification
-                ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/no_auth/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : ``}', async (req: Request, res: Response) => {
+                ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/public/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : ``}', async (req: Request, res: Response) => {
                 
                     try {
                     
@@ -151,7 +185,7 @@ export default function generateTheRouter (theObject: TheObject): void {
         ${httpMethods.includes("GET") && getAccessRelations.length > 0 ? getAccessRelations.map(accessRelation => {
 
             return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation} from database without access verification
-            ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/no_auth/${accessRelation}', async (req: Request, res: Response) => {
+            ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/public/${accessRelation}', async (req: Request, res: Response) => {
             
                 try {
                 
@@ -195,7 +229,7 @@ export default function generateTheRouter (theObject: TheObject): void {
         `): ``}
         
         ${ httpMethods.includes("POST") ? `//Post Method to insert one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database without access verification
-        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.post('/no_auth/', async (req: Request, res: Response) => {
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.post('/public/', async (req: Request, res: Response) => {
         
             try {
             
@@ -251,12 +285,13 @@ export default function generateTheRouter (theObject: TheObject): void {
         
         });
         ` : ``}
-        ${ httpMethods.includes("PUT") ? `//Put Method to update one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database without access verification
-        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.put('/no_auth/:id(\\\\d+)', async (req: Request, res: Response) => {
+        
+        ${httpMethods.includes("PUT") ? `//Put Method to update one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database without access verification
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.put('/public/:id(\\\\d+)', async (req: Request, res: Response) => {
         
             try {
             
-                let updated;
+                let updated : ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} | undefined;
             
                 //Create an instance of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}
                 let ${entityName}ToUpdate: ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} = new ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}();
@@ -314,7 +349,7 @@ export default function generateTheRouter (theObject: TheObject): void {
         });
         ` : ``}
         ${ httpMethods.includes("DELETE") ? `//Delete Method to delete one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} in database without access verification
-        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.delete('/no_auth/:id(\\\\d+)', async (req: Request, res: Response) => {
+        ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.delete('/public/:id(\\\\d+)', async (req: Request, res: Response) => {
         
             try {
             
@@ -671,7 +706,7 @@ export default function generateTheRouter (theObject: TheObject): void {
     
         try {
         
-            let updated;
+            let updated : ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} | undefined;
         
             //Create an instance of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}
             let ${entityName}ToUpdate: ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} = new ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}();
@@ -733,7 +768,7 @@ export default function generateTheRouter (theObject: TheObject): void {
     
         try {
         
-            let deleted;
+            let deleted : string;
         
             //Check if ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} have to be cached
             switch (${entityName}Cache.isEntityCached) {
@@ -787,7 +822,7 @@ export default function generateTheRouter (theObject: TheObject): void {
 
 `
 
-    fs.writeFileSync(filePath, fileContent)
-    console.log(`Generated ${entityName}.router File`)
+    fs.writeFileSync(filePath, fileContent);
+    console.log(`Generated ${entityName}.router File`);
 
-}
+};

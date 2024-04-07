@@ -20,3 +20,5 @@ export function getEntityPropertiesName(Entity: Function): string[] {
     //Retourner le tableau de noms de colonnes et de relations
     return [...columnNames,...relationNames]
 }
+
+//Todo: vérifier si cette fonction garde toujours une utilité actuellement

@@ -4,12 +4,11 @@ import * as glob from 'glob';
 //Fonction mountRouter, permet de récupérer tous les fichiers router.js et de les ajouter dans un tableau
 //Function mountRouter, allows to get all router.js files and add them in an array
 export default function mountRouter () {
-
     //Récupérer le chemin du dossier router
     //Get the path of the router folder
     const directoryPath : string = path.join(__dirname, `../../router`);
 
-    console.log(directoryPath)
+    console.log(`Router ${directoryPath}`)
 
     //Récupérer tous les fichiers router.js
     //Get all router.js files
@@ -40,7 +39,6 @@ export default function mountRouter () {
         //Pour chaque clé du module, vérifier si c'est un router
         //For each key of the module, check if it's a router
         Object.keys(module).forEach((key) => {
-
             //Si c'est un router, l'ajouter dans le tableau
             //If it's a router, add it in the array
             const isRouter = module[key]
@@ -51,9 +49,7 @@ export default function mountRouter () {
         })
 
     })
-
     //Retourner le tableau
     //Return the array
-    return expressRouters
-
+    return expressRouters;
 }

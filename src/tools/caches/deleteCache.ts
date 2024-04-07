@@ -7,6 +7,13 @@ import * as cache from 'memory-cache';
 
 //Fonction qui supprime les données en chache pour une requête donnée
 //Function that deletes the data in cache for a given request
+/**
+ * Delete the data in cache for a given request
+ * @param req - Request
+ * @param res - Response
+ * @param dataBaseMethod - ObjectLiteral
+ * @returns - Response
+ */
 export default async function deleteCache(req: Request, res: Response, dataBaseMethod: ObjectLiteral) {
 
     //Executer le code contenu dans le bloc try

@@ -2,8 +2,8 @@
 const express = require('express');
 import { Request, Response } from 'express';
 //Declare App
-const app = express()
-app.use(express.json())
+const app = express();
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //Import api_accessRouter
@@ -34,8 +34,9 @@ const swaggerDocument = require('../swagger-output.json');
 app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //Import ExpressWinston and Winston
-import * as expressWinston from 'express-winston'
-import {format, transports} from "winston";
+const winston = require('winston');
+const expressWinston = require('express-winston');
+
 import {timerLoop} from "./tools/timerLoop";
 import mountRouter from "./tools/router/mountRouters";
 
@@ -43,72 +44,74 @@ import mountRouter from "./tools/router/mountRouters";
 //Declare revokedToken Set to store revoked tokens
 export let revokedToken : Set<string> = new Set();
 
-//Vider le set à intervalle régulier de la valeur définie dans le fichier .env
-//Clear the set at regular intervals based on the value defined in the .env file
+//Vider le set revokedToken à intervalle régulier de la valeur définie dans le fichier .env
+//Clear the revokedToken set at regular intervals of the value defined in the .env file
 timerLoop(() =>{revokedToken.clear()}, Number(process.env.TL_TIMER));
 
-app.use(expressWinston.logger({
-    // Utiliser deux transports pour les journaux : console et fichier
-    // Use two transports for logs: console and file
-    transports: [
-        //new transports.Console(), // Transport de console commenté pour désactiver la journalisation de console
-                                    //Console transport commented to disable console logging
-        new transports.File({
-            filename: `logs/accessLogs/access.log`,
+//Configuration de Winston pour journaliser les logs dans un fichier
+//Configuration of Winston to log logs in a file
+//Todo : Voir comment automatiser les logs lors de l'exécution des requêtes https (ex: /login, ajouter log 'Nom de l'utilisateur' s'est connecté avec succès) en utilisant la constante logger
+const logger = winston.createLogger({
+    transports : [
+        new winston.transports.File({
+            filename: `logs/conbinedLogs/combined.log`,
             maxsize: Number(process.env.LOG_LIMIT_SIZE),
             maxFiles: Number(process.env.LOG_LIMIT_FILES)
-        }),
+        })
+    ]
+});
+
+
+//Middleware pour logger les requêtes HTTP avec Winston
+//Middleware to log HTTP requests with Winston
+app.use(expressWinston.logger({
+    transports: [
+        //new winston.transports.Console(),
+        new winston.transports.File({
+            filename: `logs/httpLogs/http.log`,
+            maxsize: Number(process.env.LOG_LIMIT_SIZE),
+            maxFiles: Number(process.env.LOG_LIMIT_FILES)
+        })
     ],
-    // Format de chaque entrée de journal
-    // Format of each log entry
-    format: format.combine(
-        format.timestamp(), // Ajouter une propriété timestamp pour chaque entrée de journal
-                            // Add a timestamp property for each log entry
-        format.json(), // Formater chaque entrée de journal en tant qu'objet JSON
-                       // Format each log entry as a JSON object
-    )
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.colorize(),
+        winston.format.json()
+    ),
+    meta: true,
+    msg: "HTTP {{req.method}} {{req.url}}",
+    expressFormat: true,
+    colorize: false,
 }));
 
-// Middleware pour logger les erreurs avec Winston
-// Middleware to log errors with Winston
-// Configuration du middleware de journalisation d'erreurs d'Express
-// Configuration of the Express error logging middleware
+//Middleware pour logger les erreurs avec Winston
+//Middleware to log errors with Winston
 app.use(expressWinston.errorLogger({
-    // Utiliser deux transports pour les journaux d'erreurs : console et fichier
-    // Use two transports for error logs: console and file
     transports: [
-        //new transports.Console(), // Transport de console commenté pour désactiver la journalisation de console
-                                    //Console transport commented to disable console logging
-        new transports.File({
+        //new winston.transports.Console(),
+        new winston.transports.File({
             filename: `logs/errorLogs/error.log`,
             maxsize: Number(process.env.LOG_LIMIT_SIZE),
             maxFiles: Number(process.env.LOG_LIMIT_FILES)
-        }),
+        })
     ],
-    // Format de chaque entrée de journal d'erreur
-    // Format of each error log entry
-    format: format.combine(
-        format.timestamp(), // Ajouter une propriété timestamp pour chaque entrée de journal d'erreur
-                            // Add a timestamp property for each error log entry
-        format.json(), // Formater chaque entrée de journal d'erreur en tant qu'objet JSON
-                        // Format each error log entry as a JSON object
-    )
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.colorize(),
+        winston.format.json()
+    ),
 }));
 
 app.get('/', async (req: Request, res: Response) => {
-
-    res.send('Hello World!')
-
-})
-
-
+    res.send('Hello World!');
+});
 
 //Declaration des routers
 //Declaration of routers
 app.use('/api_access', api_accessRouter)
 const routers = mountRouter()
 routers.forEach((router) => {
-    app.use(router.pathName, router.router)
+    app.use(router.pathName, router.router);
 });
 
 //Afficher un message sur la console lorsque le serveur est en cours d'exécution
@@ -116,4 +119,4 @@ routers.forEach((router) => {
 app.listen(process.env.SV_PORT, () => {
     console.log(`${process.env.APP_NAME}, using express is listening on port http://${process.env.SV_HOSTNAME}:${process.env.SV_PORT}/`)
     console.log(`Swagger documentation is available on http://${process.env.SV_HOSTNAME}:${process.env.SV_PORT}/api`)
-})
+});

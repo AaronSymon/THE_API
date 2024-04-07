@@ -2,6 +2,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import {TheObject} from "../../types";
 
+//Fonction qui génère le fichier entity nécessaire au fonctionnement de typeORM
+//Function that generates the entity file required for typeORM operation
 export default function generateTheEntity (theObject: TheObject): void {
 
     const entity = theObject.entity;
@@ -10,20 +12,28 @@ export default function generateTheEntity (theObject: TheObject): void {
     const relations = entity.relations;
     let relationsType: string[] = [];
 
+    //Pour chaque relation, on vérifie si le type de relation existe déjà dans le tableau relationsType, si non, on l'ajoute
+    //For each relation, we check if the relation type already exists in the relationsType array, if not, we add it
     relations.forEach(relation => {
         !relationsType.includes(relation.type) ? relationsType.push(relation.type) : undefined;
     });
 
-
+    //Chemin du dossier entity
+    //Entity directory path
     const directoryPath = path.join(__dirname, '../../entity');
 
-
+    //Si le dossier n'existe pas, on le crée
+    //If the directory does not exist, we create it
     if (!fs.existsSync(directoryPath)) {
         fs.mkdirSync(directoryPath);
     }
 
+    //Chemin du fichier entity
+    //Entity file path
     const filePath = path.join(directoryPath, `${entityName}.entity.ts`);
 
+    //Contenu du fichier entity
+    //Entity file content
     let fileContent = `import {PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Entity, ${columns.length > 0 ? "Column," : ""} ${relationsType.length > 0 ? `${relationsType},` : ""} ${relationsType.length >0 && relationsType.includes("OneToOne") ? "JoinColumn," : ""} ${relationsType.length > 0 && relationsType.includes("ManyToMany") ? "JoinTable," : ""} } from "typeorm";
     ${relations.length > 0 ? relations.map(relation => `import {${relation.relationWith.charAt(0).toUpperCase()}${relation.relationWith.slice(1)}} from "./${relation.relationWith}.entity";`).join(`
     `): ""}
@@ -54,6 +64,8 @@ export default function generateTheEntity (theObject: TheObject): void {
     }
     `
 
-    fs.writeFileSync(filePath, fileContent)
-    console.log(`Generated ${entityName}.entity File`)
-}
+    //Ecrire le contenu dans le fichier
+    //Write the content to the file
+    fs.writeFileSync(filePath, fileContent);
+    console.log(`Generated ${entityName}.entity File`);
+};

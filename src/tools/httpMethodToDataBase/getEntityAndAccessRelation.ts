@@ -1,6 +1,8 @@
 import {mapEntityToDTO} from "../dtos/mapEntityToDto";
 import {AppDataSource} from "../../data-source.config";
 
+//Fonction pour obtenir une entité et sa relation d'accès
+//Function to get an entity and its access relation
 export default async function getEntityAndAccessRelation<Entity, DTO>(
     entity: Entity,
     accessRelationName: string,

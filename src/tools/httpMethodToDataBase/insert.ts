@@ -1,8 +1,14 @@
 import {AppDataSource} from "../../data-source.config";
+import {ObjectLiteral, Repository} from "typeorm";
 
-//Fonction insert, permet d'insérer une entité dans la base de données
-//Function insert, allows to insert an entity in the database
-export default async function insert(entity: Function, data: Partial<any>) {
+/**
+ * Insert an entity in the database.
+ * @param entity - The entity to insert.
+ * @param data - The data to insert.
+ * @return The inserted entity
+ * @return An error message
+ */
+export default async function insert(entity: Function, data: Partial<any>) : Promise<ObjectLiteral | {message: string}> {
 
     //Exécuter le code contenu dans le bloc try
     //Execute the code contained in the try block
@@ -10,11 +16,11 @@ export default async function insert(entity: Function, data: Partial<any>) {
 
         //Récupérer le repository de l'entité
         //Get the repository of the entity
-        const entityRepository = AppDataSource.getRepository(entity);
+        const entityRepository : Repository<ObjectLiteral> = AppDataSource.getRepository(entity);
 
         //Créer une instance de l'entité
         //Create an instance of the entity
-        let entityInstance = entityRepository.create(data);
+        let entityInstance : ObjectLiteral = entityRepository.create(data);
 
         //Sauvegarder l'instance de l'entité dans la base de données
         //Save the entity instance in the database
