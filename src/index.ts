@@ -22,11 +22,11 @@ app.use(cors({ origin: "http://localhost:3000", preflightContinue: true ,credent
 
 //Import Compression
 const compression = require('compression');
-app.use(compression())
+app.use(compression());
 
 //Import CookieParser
 const cookieParser = require('cookie-parser');
-app.use(cookieParser())
+app.use(cookieParser());
 
 //import swagger
 const swaggerUi = require('swagger-ui-express');
@@ -60,7 +60,6 @@ const logger = winston.createLogger({
         })
     ]
 });
-
 
 //Middleware pour logger les requêtes HTTP avec Winston
 //Middleware to log HTTP requests with Winston
@@ -108,8 +107,8 @@ app.get('/', async (req: Request, res: Response) => {
 
 //Declaration des routers
 //Declaration of routers
-app.use('/api_access', api_accessRouter)
-const routers = mountRouter()
+app.use('/api_access', api_accessRouter);
+const routers = mountRouter();
 routers.forEach((router) => {
     app.use(router.pathName, router.router);
 });

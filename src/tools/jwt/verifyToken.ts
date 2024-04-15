@@ -50,7 +50,6 @@ export default function verifyToken(req: Request, res: Response, next: Function)
             // Si l'adresse IP et l'agent utilisateur ne correspondent pas à ceux qui ont été utilisés pour générer le token, renvoyez une réponse 403 (interdite)
             // If ip adress and user agent don't match with the ones used to generate the token, send a 403 response (forbidden)
             return res.status(403).json({message: 'Invalid token. Access denied.'});
-
         }
 
         // Stockez l'utilisateur dans l'objet req avec la clé 'utilisateur'

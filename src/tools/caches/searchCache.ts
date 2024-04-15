@@ -7,10 +7,9 @@ export default function searchCache(req: Request) : boolean {
 
     //Vérifier si la requête est déjà en cache
     //Check if the request is already cached
-    let isCachedExisting = cache.get(req.url)
+    let isCachedExisting = cache.get(req.url);
 
     //Si la requête est déjà en cache, retourner true
     //If the request is already cached, return true
     return !!isCachedExisting;
-
-}
+};

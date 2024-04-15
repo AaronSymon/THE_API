@@ -8,7 +8,7 @@ export default function verifyUserAccessByRole(req: Request, res: Response,next:
     //Exécuter le code contenu dans le bloc try
     //Execute the code contained in the try block
     try {
-        //déclarer une variable qui contient l'access de l'utilisateur à la ressource demandée si celle-ci existe
+        //déclarer une variable qui contient l'accès de l'utilisateur à la ressource demandée si celle-ci existe
         //declare a variable that contains the user's access to the requested resource if it exists
         const isUserHaveAccess = [...entityAccesses].find( access => access.userRole === req['utilisateur'].role && access.accessMethods.has(req.method));
 
@@ -30,8 +30,8 @@ export default function verifyUserAccessByRole(req: Request, res: Response,next:
                             //Récupérer les paramètres de la requête dans un tableau
                             //Get the request parameters in an array
                             const requestParams = Object.keys(req.params);
-                            //Vérifier si tous les paramètres de la requête sont incuts dans le tableau des paramètres de l'utilisateur
-                            //Check if all request parameters are included in the user's parameters array
+                            //Vérifier si tous les paramètres de la requête sont incluts dans le tableau des paramètres de l'utilisateur pour déterminé si l'utilisateur a accès à la ressource demandée
+                            //Check if all request parameters are included in the user's parameters array to determine if the user has access to the requested resource
                             if (arrayIncludedInOtherArray(requestParams, isUserHaveAccess.getAccessParams)) {
                                 //Si oui, exécuter la requête "next"
                                 //If yes, execute the "next" request
@@ -42,7 +42,7 @@ export default function verifyUserAccessByRole(req: Request, res: Response,next:
                                 return res.status(403).json({message: 'Access denied.'});
                             }
                         } else {
-                            //Si l'utilisateur ne possède pas tout les accès aux différents paramètres de la requête, renvoyer une erreur 403
+                            //Si l'utilisateur ne possède pas tous les accès aux différents paramètres de la requête, renvoyer une erreur 403
                             //If the user does not have all the accesses to the different parameters of the request, return an error 403
                             return res.status(403).json({message: 'Access denied.'});
                         }
@@ -67,11 +67,12 @@ export default function verifyUserAccessByRole(req: Request, res: Response,next:
     //Si une erreur est survenue, l'afficher dans la console
     //If an error occurred, display it in the console
     } catch (e) {
+        //Todo : Si une erreur survient, l'enregistrer dans les logs
         //console.log(e)
     }
 }
 
-//Fonction middleware qui vérifie prenant en paramètre un set entityAccess pour détemriner si un utilisateur à accès à une ressource demandée
+//Fonction middleware prenant en paramètre un set entityAccess pour détemriner si un utilisateur à accès à une ressource demandée
 //Middleware function that takes a set entityAccess as a parameter to determine if a user has access to a requested resource
 export const verifyUserAccessMiddleware = (entityAccess: Set<entityAccess>) => {
     return (req: Request, res: Response, next: Function) => {

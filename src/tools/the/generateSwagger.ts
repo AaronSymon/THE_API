@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as process from 'process';
 import * as dotenv from 'dotenv';
-import {TheColumn, TheObject} from "../../types";
+import {TheColumn, TheObject, TheEntity} from "../../types";
 
 dotenv.config();
 
@@ -55,12 +55,12 @@ export default function generateSwagger (theObjects: TheObject[]){
     definitions: {
         ${theObjects.map(theObject => `//${theObject.entity.entityName.charAt(0).toUpperCase()}${theObject.entity.entityName.slice(1)} Definition
         
-        
         ${theObject.entity.entityName.charAt(0).toUpperCase()}${theObject.entity.entityName.slice(1)}: {
         
         ${theObject.entity.columns && theObject.entity.columns.length > 0 ?theObject.entity.columns.map(column => !("default" in column.options) ? `${column.name} : "${column.options.columnType}",`: "").join(`
         `) : ""}
-        ${theObject.entity.relations && theObject.entity.relations.length > 0 ? theObject.entity.relations.map( relation => {
+        
+        ${theObject.entity.relations && theObject.entity.relations.length > 0 ? theObject.entity.relations.map(relation => {
 
             const relationTable = relation.relationWith
             const relationType = relation.type
@@ -83,13 +83,13 @@ export default function generateSwagger (theObjects: TheObject[]){
             
             if (relationType === "OneToMany" || relationType === "ManyToMany") {
     
-                let theObjectRelation = require((`../../theObject/${relationTable}.the`))
-                theObjectRelation = theObjectRelation[relationTable]
+                let theObjectRelation : Function | TheEntity = require((`../../theObject/${relationTable}.the`));
+                theObjectRelation = theObjectRelation[relationTable];
     
-                const theObjectRelationColumns: TheColumn[] = theObjectRelation["entity"]["columns"]
+                const theObjectRelationColumns: TheColumn[] = theObjectRelation["entity"]["columns"];
     
                 relationColumns = `[
-                    {
+                    { 
                     ${theObjectRelationColumns.map(column => !("default" in column.options) ? `${column.name} : "${column.options.columnType}",`: "").join(`
                         `)}
                     },
@@ -104,12 +104,70 @@ export default function generateSwagger (theObjects: TheObject[]){
                                
         },
         
+        //${theObject.entity.entityName.charAt(0).toUpperCase()}${theObject.entity.entityName.slice(1)}Post Definition
+        ${theObject.entity.entityName.charAt(0).toUpperCase()}${theObject.entity.entityName.slice(1)}Post: {
+        
+        ${theObject.entity.columns && theObject.entity.columns.length > 0 ?theObject.entity.columns.map(column => !("default" in column.options) ? `${column.name} : "${column.options.columnType}",`: "").join(`
+        `) : ""}
+        
+        ${theObject.entity.relations && theObject.entity.relations.length > 0 ? theObject.entity.relations.map(relation => {
+
+        const relationTable = relation.relationWith
+        const relationType = relation.type
+        let relationColumns: string = ""
+
+        if (relationType === "OneToOne" || relationType === "ManyToOne") {
+
+
+            let theObjectRelation = require((`../../theObject/${relationTable}.the`))
+            theObjectRelation = theObjectRelation[relationTable]
+
+            const theObjectRelationColumns: TheColumn[] = theObjectRelation["entity"]["columns"]
+
+            relationColumns = `{
+                    id : "integer",
+                    }`
+
+        }
+
+        if (relationType === "OneToMany" || relationType === "ManyToMany") {
+
+            let theObjectRelation : Function | TheEntity = require((`../../theObject/${relationTable}.the`));
+            theObjectRelation = theObjectRelation[relationTable];
+
+            const theObjectRelationColumns: TheColumn[] = theObjectRelation["entity"]["columns"];
+
+            relationColumns = `[
+                    {
+                    id : "integer",    
+                    },
+                    ]`
+
+        }
+
+        return `${relation.name} : ${relationColumns},`
+
+    }).join(`
+            `) :""}
+                               
+        },        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         //${theObject.entity.entityName.charAt(0).toUpperCase()}${theObject.entity.entityName.slice(1)}Dto Definition
         
         ${theObject.entity.entityName.charAt(0).toUpperCase()}${theObject.entity.entityName.slice(1)}Dto: {
         
         ${theObject.entity.columns && theObject.entity.columns.length > 0 ? theObject.entity.columns.map(column => !("default" in column.options) && !(theObject.entity.dtoExcludedColumns && theObject.entity.dtoExcludedColumns.includes(column.name)) ? `${column.name} : "${column.options.columnType}",` : "").join(`
         `) : ""}
+        
         ${theObject.entity.relations && theObject.entity.relations.length > 0 ? theObject.entity.relations.map( relation => {
 
         const relationTable = relation.relationWith

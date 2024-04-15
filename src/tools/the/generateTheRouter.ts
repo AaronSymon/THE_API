@@ -123,21 +123,21 @@ export default function generateTheRouter (theObject: TheObject): void {
         ` : ``}
         ${httpMethods.includes("GET") && getAccessParams.length > 0 ? getAccessParams.map(accessParam => {
 
-                    const accessParamType = entity.columns && entity.columns.length > 0 ? entity.columns.find(column => column.name === accessParam)?.type : ``;
-                    let accessParamRegex : string | undefined = undefined;
-        
-                    switch (accessParamType) {
-                        case "string":
-                            accessParamRegex = "\\\\w+";
-                            break;
-                        case "number":
-                            accessParamRegex = "\\\\d+";
-                            break;
-                    }
-                    
-                    accessParam === "id" ? accessParamRegex = "\\\\d+" : ``;
-        
-                    return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} from database without access verification
+            const accessParamType = entity.columns && entity.columns.length > 0 ? entity.columns.find(column => column.name === accessParam)?.type : ``;
+            let accessParamRegex : string | undefined = undefined;
+
+            switch (accessParamType) {
+                case "string":
+                    accessParamRegex = "\\\\w+";
+                    break;
+                case "number":
+                    accessParamRegex = "\\\\d+";
+                    break;
+            }
+
+            accessParam === "id" ? accessParamRegex = "\\\\d+" : ``;
+
+            return `//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} from database without access verification
                 ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/public/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : ``}', async (req: Request, res: Response) => {
                 
                     try {
@@ -178,7 +178,7 @@ export default function generateTheRouter (theObject: TheObject): void {
                     }
                 });
             `
-            
+
         }).join(`
         `): ``}
         
@@ -224,7 +224,7 @@ export default function generateTheRouter (theObject: TheObject): void {
                 }
             });
             `
-            
+
         }).join(`
         `): ``}
         
@@ -540,10 +540,10 @@ export default function generateTheRouter (theObject: TheObject): void {
     });
     
     ${accessParams.length > 0 ? accessParams.map(accessParam => {
-        
+
         const accessParamType = entity.columns && entity.columns.length > 0 ? entity.columns.find(column => column.name === accessParam)?.type : ``;
         let accessParamRegex : string | undefined = undefined;
-        
+
         switch (accessParamType) {
             case "string":
                 accessParamRegex = "\\\\w+";
@@ -552,7 +552,7 @@ export default function generateTheRouter (theObject: TheObject): void {
                 accessParamRegex = "\\\\d+";
                 break;
         }
-            
+
         return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} by ${accessParam} from database
         ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/${accessParam}/:${accessParam}${accessParamRegex ? `(${accessParamRegex})` : ``}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
         
@@ -598,7 +598,7 @@ export default function generateTheRouter (theObject: TheObject): void {
     `) : ``}
     
     ${accessRelations.length > 0 ? accessRelations.map(accessRelation => {
-        
+
         return`//Get Method to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation} from database
         ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Router.get('/${accessRelation}', verifyToken, verifyUserAccessMiddleware(${entityName}Access), async (req: Request, res: Response) => {
         
@@ -639,7 +639,7 @@ export default function generateTheRouter (theObject: TheObject): void {
             }
         });
         `
-        
+
     }).join(`
     `): ``}
     

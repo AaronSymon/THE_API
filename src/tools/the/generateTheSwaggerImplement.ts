@@ -280,11 +280,7 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
                     #swagger.description = "${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} endPoint to insert one ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} without access verification"
                     #swagger.requestBody = {
                         required: true,
-                        schema: {$ref: '#/definitions/${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}'},
-                    }
-                    #swagger.responses[200] = {
-                        schema: {$ref: '#/definitions/${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto'},
-                        description: "${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} inserted successfully"
+                        schema: {$ref: '#/definitions/${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Post'},
                     }
                     #swagger.responses[201] = {
                         schema: {message: 'Instance of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} created successfully.'},
@@ -852,11 +848,7 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
             }]
             #swagger.requestBody = {
                 required: true,
-                schema: {$ref: '#/definitions/${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}'},
-            }
-            #swagger.responses[200] = {
-                schema: {$ref: '#/definitions/${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto'},
-                description: "${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} inserted successfully"
+                schema: {$ref: '#/definitions/${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Post'},
             }
             #swagger.responses[201] = {
                 schema: {message: 'Instance of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} created successfully.'},

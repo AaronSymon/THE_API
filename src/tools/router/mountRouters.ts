@@ -8,15 +8,13 @@ export default function mountRouter () {
     //Get the path of the router folder
     const directoryPath : string = path.join(__dirname, `../../router`);
 
-    console.log(`Router ${directoryPath}`)
-
     //Récupérer tous les fichiers router.js
     //Get all router.js files
-    const routers: string[] = glob.sync(`${directoryPath}/**/*.router.js`)
+    const routers: string[] = glob.sync(`${directoryPath}/**/*.router.js`);
 
     //Créer un tableau qui contiendra tous les fichiers router.js
     //Create an array that will contain all router.js files
-    const expressRouters : {pathName: string, router: Function}[] = []
+    const expressRouters : {pathName: string, router: Function}[] = [];
 
     //Pour chaque fichier router.js, récupérer le nom du fichier et le nom de l'entité
     //For each router.js file, get the file name and the entity name
@@ -28,7 +26,8 @@ export default function mountRouter () {
 
         const desiredPath = router.substring(startIndex);
 
-        //Récupérer le nom(entity.name.toLowerCase())
+        //Récupérer le nom de l'entité (entity.name.toLowerCase())
+        //Get the entity name (entity.name.toLowerCase())
         const dotIndex = desiredPath.indexOf('.');
         const pathName: string = desiredPath.substring(0, dotIndex);
 
@@ -41,14 +40,14 @@ export default function mountRouter () {
         Object.keys(module).forEach((key) => {
             //Si c'est un router, l'ajouter dans le tableau
             //If it's a router, add it in the array
-            const isRouter = module[key]
+            const isRouter : Function = module[key];
             if (typeof isRouter === 'function'){
-                const expressRouter: {pathName: string, router: Function} = {pathName: pathName, router: isRouter}
-                expressRouters.push(expressRouter)
+                const expressRouter: {pathName: string, router: Function} = {pathName: pathName, router: isRouter};
+                expressRouters.push(expressRouter);
             }
-        })
+        });
+    });
 
-    })
     //Retourner le tableau
     //Return the array
     return expressRouters;
