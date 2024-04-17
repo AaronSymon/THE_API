@@ -55,7 +55,8 @@ export const user: TheObject = {
             {
                 name: "profile",
                 type: "OneToOne",
-                relationWith: "profile"
+                relationWith: "profile",
+                oneToOneOwningSide: true
             },
             {
                 name: "photos",

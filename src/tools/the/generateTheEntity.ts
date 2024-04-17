@@ -55,14 +55,14 @@ export default function generateTheEntity (theObject: TheObject): void {
         
         `) : ""} 
          
-         ${relations.length> 0 ? relations.map(relation => `@${relation.type}(${relation.type === "OneToOne" ? `() => ${relation.relationWith.charAt(0).toUpperCase()}${relation.relationWith.slice(1)}, (${relation.relationWith}) => ${relation.relationWith}.${entity.entityName}` : ""} ${relation.type === "OneToMany" ? `() => ${relation.relationWith.charAt(0).toUpperCase()}${relation.relationWith.slice(1)}, (${relation.relationWith}) => ${relation.relationWith}.${entity.entityName}` : ""} ${relation.type === "ManyToOne" ? `() => ${relation.relationWith.charAt(0).toUpperCase()}${relation.relationWith.slice(1)}, (${relation.relationWith}) => ${relation.relationWith}.${relation.oneToManyJoinTable}` : ""} ${relation.type === "ManyToMany" ? `() => ${relation.relationWith.charAt(0).toUpperCase()}${relation.relationWith.slice(1)}, (${relation.relationWith}) => ${relation.relationWith}.${relation.manyToManyJoinTable}`: ""})
-         ${relation?.type === "OneToOne" ? "@JoinColumn()" :""} ${relation.type === "ManyToMany" && "manyToManyOwningSide" in relation ? "@JoinTable()" : ""}
+         ${relations.length> 0 ? relations.map(relation => `@${relation.type}(${relation.type === "OneToOne" ? `() => ${relation.relationWith.charAt(0).toUpperCase()}${relation.relationWith.slice(1)}, (${relation.relationWith}) => ${relation.relationWith}.${entity.entityName}` : ""} ${relation.type === "OneToMany" ? `() => ${relation.relationWith.charAt(0).toUpperCase()}${relation.relationWith.slice(1)}, (${relation.relationWith}) => ${relation.relationWith}.${entity.entityName}` : ""} ${relation.type === "ManyToOne" ? `() => ${relation.relationWith.charAt(0).toUpperCase()}${relation.relationWith.slice(1)}, (${relation.relationWith}) => ${relation.relationWith}.${relation.oneToManyJoinTable}` : ""} ${relation.type === "ManyToMany" ? `() => ${relation.relationWith.charAt(0).toUpperCase()}${relation.relationWith.slice(1)}, (${relation.relationWith}) => ${relation.relationWith}.${relation.manyToManyJoinTable}`: ""}, ${"cascade" in relation ? `{cascade : ${relation.cascade}}` : ""})
+         ${relation?.type === "OneToOne" && relation?.oneToOneOwningSide === true ? "@JoinColumn()" :""} ${relation.type === "ManyToMany" && "manyToManyOwningSide" in relation ? "@JoinTable()" : ""}
          ${relation.name}: ${relation.relationWith.charAt(0).toUpperCase()}${relation.relationWith.slice(1)} ${relation.type === "OneToMany" || relation.type === "ManyToMany" ? "[]" : ""}`).join(`
          
          `) : ""}  
     
     }
-    `
+    `;
 
     //Ecrire le contenu dans le fichier
     //Write the content to the file

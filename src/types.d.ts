@@ -33,7 +33,7 @@ export type TheObject = {
 export type TheEntity = {
     entityName: string,
     columns?: TheColumn[],
-    relations?: TheRelation[],
+    relations: TheRelation[],
     dtoExcludedColumns?: TheColumn["name"][] ,
     dtoExcludedRelations?: TheRelation["name"][],
 }
@@ -65,6 +65,8 @@ export type TheRelation = {
     name: string,
     type: "OneToOne" | "OneToMany" | "ManyToOne" | "ManyToMany",
     relationWith: string,
+    cascade?: boolean | ("insert" | "update" | "remove" | "soft-remove" | "recover")[],
+    oneToOneOwningSide?: boolean,
     manyToManyOwningSide?: boolean,
     oneToManyJoinTable?: string,
     manyToManyJoinTable?: string
