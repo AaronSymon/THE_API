@@ -1,6 +1,8 @@
+import * as process from 'process';
+
 export type entityCache = {
     entity: Function,
-    isEntityCached: boolean
+    isEntityCached: boolean  //is the entity had to be cached?
 }
 
 export type entityAccess = {
@@ -11,11 +13,11 @@ export type entityAccess = {
 }
 
 export type userPayload = {
-    id: number,
-    email: string,
-    role: string,
-    userAgent: string
-    ipAdress: string
+    id: number,  //user id
+    email: string,  //user email
+    role: string,  //user role
+    userAgent: string  //userAgent from user's request header
+    ipAddress: string  //user ip address
 }
 
 export type personalizedController = {
@@ -43,7 +45,7 @@ export type TheEntityCache = {
 }
 
 export type TheEntityAccess = {
-    userRole: undefined |"User" | "Admin" | "SuperAdmin",
+    userRole: undefined |"User" | "Admin" | "SuperAdmin", //Add your own user_roles here
     httpMethods: Set<"GET" | "POST" | "PUT" | "DELETE">,
     getAccessParams?: string[],
     getAccessRelations?: string[],
@@ -54,8 +56,8 @@ export type TheColumn = {
     name: string,
     type: "string" | "number" | "Date" | "boolean" | "Blob"
     options: {
-        nullable: boolean,
-        unique?: boolean,
+        nullable: boolean, //is the column nullable?
+        unique?: boolean,  //is the column unique?
         columnType: ColumnType,
         default?: string | number | boolean | Date | null,
     }
@@ -66,7 +68,7 @@ export type TheRelation = {
     type: "OneToOne" | "OneToMany" | "ManyToOne" | "ManyToMany",
     relationWith: string,
     cascade?: boolean | ("insert" | "update" | "remove" | "soft-remove" | "recover")[],
-    oneToOneOwningSide?: boolean,
+    oneToOneOwningSide?: boolean, //The table that will contain a 'relation id', and foreign key to the target entity table
     manyToManyOwningSide?: boolean,
     oneToManyJoinTable?: string,
     manyToManyJoinTable?: string

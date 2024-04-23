@@ -155,7 +155,7 @@ api_accessRouter.post('/login', async (req: Request, res: Response) => {
 
                 //Créer un token d'authentification pour accéder aux différentes routes de l'API auxquels l'utilsateur a accès
                 //Create an authentication token to access the different routes of the API to which the user has access
-                const accessToken = createToken({id: isUserExisting.id, email: isUserExisting.email, role: isUserExisting.role, userAgent: req.headers['user-agent'], ipAdress: req.socket.remoteAddress});
+                const accessToken = createToken({id: isUserExisting.id, email: isUserExisting.email, role: isUserExisting.role, userAgent: req.headers['user-agent'], ipAddress: req.socket.remoteAddress});
 
                 //Assigné le token d'authentification dans un cookie http-only
                 //Assigning accessToken in http-only cookie

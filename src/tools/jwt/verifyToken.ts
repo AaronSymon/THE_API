@@ -45,7 +45,7 @@ export default function verifyToken(req: Request, res: Response, next: Function)
 
         // Vérifiez si l'adresse IP et l'agent utilisateur ne correspondent pas à ceux qui ont été utilisés pour générer le token
         // Check if ip adress and user agent don't match with the ones used to generate the token
-        if (utilisateur.ipAdress !== req.socket.remoteAddress || utilisateur.userAgent !== req.headers['user-agent']) {
+        if (utilisateur.ipAddress !== req.socket.remoteAddress || utilisateur.userAgent !== req.headers['user-agent']) {
 
             // Si l'adresse IP et l'agent utilisateur ne correspondent pas à ceux qui ont été utilisés pour générer le token, renvoyez une réponse 403 (interdite)
             // If ip adress and user agent don't match with the ones used to generate the token, send a 403 response (forbidden)

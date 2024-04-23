@@ -220,10 +220,10 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
             
                 /*
                 #swagger.tags= ['${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}']
-                #swagger.description = "${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} endPoint to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation} without access verification"
+                #swagger.description = "${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} endPoint to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation.charAt(0).toUpperCase()}${accessRelation.slice(1)} without access verification"
                 #swagger.responses[200] = {
                     schema: {$ref: '#/definitions/${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto'},
-                    description: "Array of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation}"
+                    description: "Array of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation.charAt(0).toUpperCase()}${accessRelation.slice(1)}"
                 }
                 #swagger.responses[500] = {
                     schema: {message: "An error occurred while trying to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation}"},
@@ -773,13 +773,13 @@ export default function generateTheSwaggerImplement(theObject: TheObject) {
         
             /*
             #swagger.tags= ['${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}']
-            #swagger.description = "${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} endPoint to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation}"
+            #swagger.description = "${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} endPoint to get ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation.charAt(0).toUpperCase()}${accessRelation.slice(1)}"
             #swagger.security = [{
                 "apiKeyAuth": []
             }]
             #swagger.responses[200] = {
                 schema: {$ref: '#/definitions/${entityName.charAt(0).toUpperCase()}${entityName.slice(1)}Dto'},
-                description: "Array of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation}"
+                description: "Array of ${entityName.charAt(0).toUpperCase()}${entityName.slice(1)} and associated ${accessRelation.charAt(0).toUpperCase()}${accessRelation.slice(1)}",
             }
             #swagger.responses[401] = {
             schema: {message: "Token is required. Access denied."},

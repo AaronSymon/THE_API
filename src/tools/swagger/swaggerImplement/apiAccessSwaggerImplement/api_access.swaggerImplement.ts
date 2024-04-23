@@ -119,7 +119,7 @@ app.post('/api_access/login', async (req: Request, res: Response) => {
             case true:
 
                 //Créer un token d'authentification pour accéder aux différentes routes de l'API auxquels l'utilsateur a accès
-                const accessToken = createToken({id: isUserExisting.id, email: isUserExisting.email, role: isUserExisting.role, userAgent: req.headers['user-agent'], ipAdress: req.socket.remoteAddress});
+                const accessToken = createToken({id: isUserExisting.id, email: isUserExisting.email, role: isUserExisting.role, userAgent: req.headers['user-agent'], ipAddress: req.socket.remoteAddress});
 
                 // assigning accessToken in http-only cookie
                 res.cookie('accessToken', accessToken,{ httpOnly: true,

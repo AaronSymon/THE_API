@@ -165,6 +165,7 @@ export default function generateSwagger (theObjects: TheObject[]){
         
         ${theObject.entity.entityName.charAt(0).toUpperCase()}${theObject.entity.entityName.slice(1)}Dto: {
         
+        id : "integer",
         ${theObject.entity.columns && theObject.entity.columns.length > 0 ? theObject.entity.columns.map(column => !("default" in column.options) && !(theObject.entity.dtoExcludedColumns && theObject.entity.dtoExcludedColumns.includes(column.name)) ? `${column.name} : "${column.options.columnType}",` : "").join(`
         `) : ""}
         
@@ -183,6 +184,7 @@ export default function generateSwagger (theObjects: TheObject[]){
             const theObjectRelationColumns: TheColumn[] = theObjectRelation["entity"]["columns"]
 
             relationColumns = `{
+                id : "integer",
                 ${theObjectRelationColumns.map(column =>!("default" in column.options) && !(theObjectRelation.entity.dtoExcludedColumns && theObjectRelation.entity.dtoExcludedColumns.includes(column.name)) ? `${column.name} : "${column.options.columnType}",` : "").join(`
                     `)}
                     }`
@@ -198,6 +200,7 @@ export default function generateSwagger (theObjects: TheObject[]){
 
             relationColumns = `[
                     {
+                    id : "integer",
                     ${theObjectRelationColumns.map(column =>!("default" in column.options) && !(theObjectRelation.entity.dtoExcludedColumns && theObjectRelation.entity.dtoExcludedColumns.includes(column.name)) ? `${column.name} : "${column.options.columnType}",` : "").join(`
                         `)}
                     },
